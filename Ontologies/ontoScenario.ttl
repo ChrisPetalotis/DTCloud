@@ -1,0 +1,271 @@
+@prefix : <http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/> .
+@prefix bfo: <http://purl.obolibrary.org/obo/BFO_> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/> .
+
+<http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario> rdf:type owl:Ontology .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://purl.obolibrary.org/obo/BFO_0000066
+<http://purl.obolibrary.org/obo/BFO_0000066> rdf:type owl:ObjectProperty ;
+                                             rdfs:label "occursIn" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/affects
+:affects rdf:type owl:ObjectProperty ;
+         rdfs:domain :ScenarioEffect ;
+         rdfs:range :ScenarioParameter ;
+         rdfs:label "affects" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/hasAccess
+:hasAccess rdf:type owl:ObjectProperty ;
+           rdfs:domain :User ;
+           rdfs:range :Scenario ;
+           rdfs:label "hasAccess" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/hasParameter
+:hasParameter rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf owl:topObjectProperty ;
+              rdfs:label "hasParameter" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/hasScenarioCondition
+:hasScenarioCondition rdf:type owl:ObjectProperty ;
+                      rdfs:subPropertyOf owl:topObjectProperty ;
+                      rdfs:domain :Scenario ;
+                      rdfs:range :ScenarioCondition ;
+                      rdfs:label "hasScenarioCondition" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/hasScenarioDescription
+:hasScenarioDescription rdf:type owl:ObjectProperty ;
+                        rdfs:label "hasScenarioDescription" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/hasScenarioParameter
+:hasScenarioParameter rdf:type owl:ObjectProperty ;
+                      rdfs:subPropertyOf :hasParameter ;
+                      rdfs:domain :Scenario ;
+                      rdfs:range :ScenarioParameter ;
+                      rdfs:label "hasScenarioParameter" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/wasExecutedBy
+:wasExecutedBy rdf:type owl:ObjectProperty ;
+               rdfs:domain :Scenario ;
+               rdfs:range :ScenarioExecution ;
+               rdfs:label "wasExecutedBy" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/wasGeneratedBy
+:wasGeneratedBy rdf:type owl:ObjectProperty ;
+                rdfs:domain <http://www.w3.org/ns/prov#Entity> ;
+                rdfs:range <http://www.w3.org/ns/prov#Activity> ;
+                rdfs:label "wasGeneratedBy" .
+
+
+###  http://www.w3.org/ns/prov#actedOnBehalfOf
+<http://www.w3.org/ns/prov#actedOnBehalfOf> rdf:type owl:ObjectProperty ;
+                                            rdfs:domain <http://www.w3.org/ns/prov#Agent> ;
+                                            rdfs:range <http://www.w3.org/ns/prov#Agent> ;
+                                            rdfs:label "actedOnBehalfOf" .
+
+
+###  http://www.w3.org/ns/prov#wasAssociatedWith
+<http://www.w3.org/ns/prov#wasAssociatedWith> rdf:type owl:ObjectProperty ;
+                                              rdfs:domain <http://www.w3.org/ns/prov#Activity> ;
+                                              rdfs:range <http://www.w3.org/ns/prov#Agent> ;
+                                              rdfs:label "wasAssociatedWith" .
+
+
+###  http://www.w3.org/ns/prov#wasAttributedTo
+<http://www.w3.org/ns/prov#wasAttributedTo> rdf:type owl:ObjectProperty ;
+                                            rdfs:domain <http://www.w3.org/ns/prov#Entity> ;
+                                            rdfs:range <http://www.w3.org/ns/prov#Agent> ;
+                                            rdfs:label "wasAttributedTo" .
+
+
+###  http://www.w3.org/ns/prov#wasDerivedFrom
+<http://www.w3.org/ns/prov#wasDerivedFrom> rdf:type owl:ObjectProperty ;
+                                           rdfs:domain :Scenario ;
+                                           rdfs:range :Scenario ;
+                                           rdfs:label "wasDerivedFrom" .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/hasImpactFactor
+:hasImpactFactor rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :ScenarioEffect ;
+                 rdfs:range xsd:float .
+
+
+###  http://www.w3.org/ns/prov#startedAtTime
+<http://www.w3.org/ns/prov#startedAtTime> rdf:type owl:DatatypeProperty ;
+                                          rdfs:domain <http://www.w3.org/ns/prov#Activity> ;
+                                          rdfs:range xsd:dateTime ;
+                                          rdfs:label "startedAtTime" .
+
+
+###  http://www.w3.org/ns/prov#value
+<http://www.w3.org/ns/prov#value> rdf:type owl:DatatypeProperty ;
+                                  rdfs:domain <http://www.w3.org/ns/prov#Entity> ;
+                                  rdfs:label "value" .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/AffectedMetric
+:AffectedMetric rdf:type owl:Class ;
+                rdfs:subClassOf :ScenarioParameter ;
+                rdfs:label "Affected Metric" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/DomainScenario
+:DomainScenario rdf:type owl:Class ;
+                rdfs:subClassOf :Scenario ;
+                rdfs:label "Domain Scenario" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/Scenario
+:Scenario rdf:type owl:Class ;
+          rdfs:subClassOf <http://www.w3.org/ns/prov#Entity> ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000066> ;
+                            owl:someValuesFrom :ScenarioRegion
+                          ] ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty :hasScenarioCondition ;
+                            owl:someValuesFrom :ScenarioCondition
+                          ] ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty :wasGeneratedBy ;
+                            owl:someValuesFrom :ScenarioConfiguration
+                          ] ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty :hasScenarioParameter ;
+                            owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                            owl:onClass :ScenarioParameter
+                          ] ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty :hasScenarioDescription ;
+                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                            owl:onClass :ScenarioDescription
+                          ] ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty <http://www.w3.org/ns/prov#wasAttributedTo> ;
+                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                            owl:onClass :User
+                          ] ;
+          rdfs:label "Scenario" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/ScenarioAgent
+:ScenarioAgent rdf:type owl:Class ;
+               rdfs:subClassOf <http://www.w3.org/ns/prov#SoftwareAgent> ,
+                               [ rdf:type owl:Restriction ;
+                                 owl:onProperty <http://www.w3.org/ns/prov#actedOnBehalfOf> ;
+                                 owl:someValuesFrom :User
+                               ] ;
+               rdfs:label "Scenario Agent" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/ScenarioCondition
+:ScenarioCondition rdf:type owl:Class ;
+                   rdfs:subClassOf <http://www.w3.org/ns/prov#Entity> ;
+                   rdfs:label "Scenario Condition" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/ScenarioConfiguration
+:ScenarioConfiguration rdf:type owl:Class ;
+                       rdfs:subClassOf <http://www.w3.org/ns/prov#Activity> ;
+                       rdfs:label "Scenario Configuration" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/ScenarioDescription
+:ScenarioDescription rdf:type owl:Class ;
+                     rdfs:subClassOf <http://www.w3.org/ns/prov#Entity> ;
+                     rdfs:label "Scenario Description" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/ScenarioEffect
+:ScenarioEffect rdf:type owl:Class ;
+                rdfs:subClassOf <http://www.w3.org/ns/prov#Entity> ,
+                                [ rdf:type owl:Restriction ;
+                                  owl:onProperty :affects ;
+                                  owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                  owl:onClass :ScenarioParameter
+                                ] ,
+                                [ rdf:type owl:Restriction ;
+                                  owl:onProperty :hasImpactFactor ;
+                                  owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                  owl:onDataRange xsd:float
+                                ] ;
+                rdfs:label "Scenario Effect" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/ScenarioExecution
+:ScenarioExecution rdf:type owl:Class ;
+                   rdfs:subClassOf <http://www.w3.org/ns/prov#Activity> ;
+                   rdfs:label "Scenario Execution" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/ScenarioParameter
+:ScenarioParameter rdf:type owl:Class ;
+                   rdfs:subClassOf <http://www.w3.org/ns/prov#Entity> ;
+                   rdfs:label "Scenario Parameter" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/ScenarioRegion
+:ScenarioRegion rdf:type owl:Class ;
+                rdfs:subClassOf <http://www.w3.org/ns/prov#Entity> ;
+                rdfs:label "Scenario Region" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/User
+:User rdf:type owl:Class ;
+      rdfs:subClassOf <http://www.w3.org/ns/prov#Person> ;
+      rdfs:label "User" .
+
+
+###  http://www.w3.org/ns/prov#Activity
+<http://www.w3.org/ns/prov#Activity> rdf:type owl:Class ;
+                                     rdfs:label "Activity" .
+
+
+###  http://www.w3.org/ns/prov#Agent
+<http://www.w3.org/ns/prov#Agent> rdf:type owl:Class ;
+                                  rdfs:label "Agent" .
+
+
+###  http://www.w3.org/ns/prov#Entity
+<http://www.w3.org/ns/prov#Entity> rdf:type owl:Class ;
+                                   rdfs:label "Entity" .
+
+
+###  http://www.w3.org/ns/prov#Person
+<http://www.w3.org/ns/prov#Person> rdf:type owl:Class ;
+                                   rdfs:subClassOf <http://www.w3.org/ns/prov#Agent> ;
+                                   rdfs:label "Person" .
+
+
+###  http://www.w3.org/ns/prov#SoftwareAgent
+<http://www.w3.org/ns/prov#SoftwareAgent> rdf:type owl:Class ;
+                                          rdfs:subClassOf <http://www.w3.org/ns/prov#Agent> ;
+                                          rdfs:label "Software Agent" .
+
+
+###  Generated by the OWL API (version 4.5.24.2023-01-14T21:28:32Z) https://github.com/owlcs/owlapi

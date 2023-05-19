@@ -1,0 +1,59 @@
+{% load static %}
+
+<style>
+    .buttonMenu {
+        background: url({% static 'img/buttonMenu.png' %}) no-repeat;
+    }
+    .buttonHelp {
+        background: url({% static 'img/buttonHelp.png' %}) no-repeat;
+    }
+    .buttonOptions {
+        background: url({% static 'img/buttonOptions.png' %}) no-repeat;
+    }
+    
+</style>
+<div class="container-fluid">
+<div class="row p-2">
+
+    <div class="col-4">
+        {% if user.is_authenticated %}
+
+        <button onclick="menuDrop()" class="dropdown button dropbtn buttonMenu"></button>
+        <div id="myDropdown" class="dropdown-content">
+            <a href="{% url 'main' %}">Home</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+        <span style="color: gainsboro;">{{ user.username }}</a></span>
+
+        {% endif %}
+    </div>
+
+    <div class="col-4 d-flex justify-content-center title">
+        <a class="text-white text-decoration-none" href="{% url 'main' %}">EcoTwin</a>
+    </div>
+
+    <div class="col-4 d-flex justify-content-end" >
+        {% if daily_game is not None %}
+            <div class="title2 align-self-center"> Remaining Guesses</div>
+            
+            {% if remaining > 4 %}
+            <div class="leftGuessGreen">
+                <p class="green">{{ remaining }}</p>
+            </div>
+            {% elif remaining == 2 %}
+            <div class="leftGuessOrange">
+                <p class="orange">{{ remaining }}</p>
+            </div>
+            {% elif remaining == 1 %}
+            <div class="leftGuessRed">
+                <p class="red">{{ remaining }}</p>
+            </div>
+            {% else %}
+            <div class="leftGuessYellow">
+                <p class="yellow">{{ remaining }}</p>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+</div>

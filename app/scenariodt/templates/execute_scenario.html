@@ -1,0 +1,43 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center">
+    <div class="col-3">
+        <h1 class="text-center">Scenario Execution</h1><br><br>
+        <form id="execute-form" method="POST" >
+            {% csrf_token %}
+            {% load crispy_forms_tags %}
+            {{ eform|crispy }}
+
+            <div class="row d-flex justify-content-center align-items-center">
+                <input id="exec-button" type="submit" class="btn btn-info w-25" name="submit" value="Execute" />
+            </div>
+        </form>
+        <br>
+        <div class="text-center" id="spinner" style="display:none;">
+            <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get references to the form and the submit button
+    const form = document.getElementById('execute-form');
+    const submitButton = document.getElementById('exec-button');
+
+    // Add an event listener to the form submit event
+    form.addEventListener('submit', (event) => {
+        
+        // Show the spinner
+        const spinner = document.getElementById('spinner');
+        spinner.style.display = 'block';
+
+        // Disable the submit button
+        submitButton.disabled = true;
+    });
+</script>
+
+{% endblock %}

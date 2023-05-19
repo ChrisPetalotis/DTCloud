@@ -8,6 +8,7 @@
 @prefix ssn: <http://www.w3.org/ns/ssn/> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ecso: <http://www.purl.dataone.org/odo/ECSO_> .
 @prefix envo: <http://purl.obolibrary.org/obo/ENVO_> .
 @prefix ncit: <http://purl.obolibrary.org/obo/NCIT_> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -76,15 +77,14 @@
                                              <http://purl.obolibrary.org/obo/IAO_0000112> "my body has part my brain (continuant parthood, two material entities)"@en ;
                                              <http://purl.obolibrary.org/obo/IAO_0000115> "a core relation that holds between a whole and its part"@en ;
                                              <http://purl.obolibrary.org/obo/IAO_0000118> "has_part"@en ;
-                                             rdfs:label "hasPart"@en .
+                                             rdfs:label "has part" .
 
 
 ###  http://purl.obolibrary.org/obo/RO_0002131
 <http://purl.obolibrary.org/obo/RO_0002131> rdf:type owl:ObjectProperty ;
                                             <http://purl.obolibrary.org/obo/IAO_0000115> "x overlaps y if and only if there exists some z such that x has part z and z part of y" ;
                                             <http://purl.obolibrary.org/obo/IAO_0000424> "http://purl.obolibrary.org/obo/BFO_0000051 some (http://purl.obolibrary.org/obo/BFO_0000050 some ?Y)" ;
-                                            rdfs:label "overlaps" ,
-                                                       "overlaps"@en .
+                                            rdfs:label "overlaps" .
 
 
 ###  http://purl.obolibrary.org/obo/RO_0002303
@@ -94,8 +94,7 @@
                                             rdfs:range <http://purl.obolibrary.org/obo/ENVO_01000739> ;
                                             <http://purl.obolibrary.org/obo/IAO_0000115> "x 'has habitat' y if and only if: x is an organism, y is a habitat, and y can sustain and allow the growth of a population of xs." ;
                                             rdfs:comment "A population of xs will possess adaptations (either evolved naturally or via artifical selection) which permit it to exist and grow in y." ;
-                                            rdfs:label "has habitat" ,
-                                                       "hasHabitat"@en .
+                                            rdfs:label "has habitat" .
 
 
 ###  http://purl.obolibrary.org/obo/RO_0002618
@@ -109,7 +108,7 @@
 ssn:hasProperty rdf:type owl:ObjectProperty ;
                 rdfs:domain geo:Feature ;
                 rdfs:range ssn:Property ;
-                rdfs:label "hasProperty" .
+                rdfs:label "has Property" .
 
 
 #################################################################
@@ -120,7 +119,23 @@ ssn:hasProperty rdf:type owl:ObjectProperty ;
 sio:SIO_000300 rdf:type owl:DatatypeProperty ;
                rdfs:domain ssn:Property ;
                rdfs:range rdfs:Literal ;
-               rdfs:label "hasValue" .
+               rdfs:label "has value" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/coveredFractionOfRegion
+:coveredFractionOfRegion rdf:type owl:DatatypeProperty ;
+                         rdfs:domain <http://purl.obolibrary.org/obo/ENVO_00000043> ;
+                         rdfs:range xsd:float ;
+                         rdfs:comment "Shows the fraction of the Observation Region that a land type covers." ;
+                         rdfs:label "covered fraction of region" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/habitatProbability
+:habitatProbability rdf:type owl:DatatypeProperty ;
+                    rdfs:domain <http://purl.obolibrary.org/obo/ENVO_01000739> ;
+                    rdfs:range xsd:float ;
+                    rdfs:comment "Shows the probability of the area being a habitat for a specific species, according to the results of an Species Distribution Model (SDM)." ;
+                    rdfs:label "has Habitat Probability" .
 
 
 #################################################################
@@ -157,14 +172,18 @@ sio:SIO_000300 rdf:type owl:DatatypeProperty ;
 
 ###  http://purl.obolibrary.org/obo/ENVO_00000054
 <http://purl.obolibrary.org/obo/ENVO_00000054> rdf:type owl:Class ;
-                                               rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_00000035> ;
+                                               rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_00000035> ,
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty :coveredFractionOfRegion ;
+                                                                 owl:someValuesFrom xsd:float
+                                                               ] ;
                                                <http://purl.obolibrary.org/obo/IAO_0000115> "A marsh whose water contains a considerable quantity of dissolved salts." ;
                                                <http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym> "wetland" ;
                                                <http://www.geneontology.org/formats/oboInOwl#hasDbXref> "EcoLexicon:salt_marsh" ,
                                                                                                         "https://en.wikipedia.org/wiki/Saline_marsh" ;
                                                <http://www.geneontology.org/formats/oboInOwl#hasExactSynonym> "salt marsh" ;
                                                rdfs:comment "It would be more correct to say that this has_quality salty or has_part ((soil and water) and has_increased_levels_of salt." ;
-                                               rdfs:label "SalineMarsh" .
+                                               rdfs:label "Saline Marsh" .
 
 [ rdf:type owl:Axiom ;
    owl:annotatedSource <http://purl.obolibrary.org/obo/ENVO_00000054> ;
@@ -196,15 +215,14 @@ sio:SIO_000300 rdf:type owl:DatatypeProperty ;
                                                                  owl:someValuesFrom :ObservationRegion
                                                                ] ,
                                                                [ rdf:type owl:Restriction ;
-                                                                 owl:onProperty ssn:hasProperty ;
-                                                                 owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                                                 owl:onClass ncit:C54154
+                                                                 owl:onProperty :habitatProbability ;
+                                                                 owl:someValuesFrom xsd:float
                                                                ] ;
                                                <http://purl.obolibrary.org/obo/IAO_0000115> "An environmental system which can sustain and allow the growth of an ecological population." ;
                                                <http://www.geneontology.org/formats/oboInOwl#hasDbXref> "EcoLexicon:habitat" ,
                                                                                                         "https://en.wikipedia.org/wiki/Habitat" ;
-                                               rdfs:comment "A habitat's specificity to an ecological population differentiates it from other environment classes." ;
-                                               rdfs:label "Habitat"@en .
+                                               rdfs:comment "A habitat's specificity to an ecological population differentiates it from other environment classes. A habitat is related to the occurrence of a species presence." ;
+                                               rdfs:label "Habitat" .
 
 [ rdf:type owl:Axiom ;
    owl:annotatedSource <http://purl.obolibrary.org/obo/ENVO_01000739> ;
@@ -216,20 +234,17 @@ sio:SIO_000300 rdf:type owl:DatatypeProperty ;
 
 ###  http://purl.obolibrary.org/obo/ENVO_01000861
 <http://purl.obolibrary.org/obo/ENVO_01000861> rdf:type owl:Class ;
-                                               rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_01000869> ;
+                                               rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_00000043> ,
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty :coveredFractionOfRegion ;
+                                                                 owl:someValuesFrom xsd:float
+                                                               ] ;
                                                <http://purl.obolibrary.org/obo/IAO_0000115> "An area of a planet's surface which is partly covered by shrubs with ground-hugging stems or low growth habit, in contact with an atmospheric column extending from the planetary boundary layer to the planet's exosphere with little to no physical obstruction." ;
                                                <http://purl.obolibrary.org/obo/IAO_0000116> "As noted in Wikipedia: \"Because the criteria are matters of degree rather than of kind, the definition of a subshrub is not sharply distinguishable from that of a shrub\"" ;
                                                <http://purl.obolibrary.org/obo/IAO_0000118> "dwarf scrub" ;
                                                <http://www.geneontology.org/formats/oboInOwl#hasExactSynonym> "area of subshrub" ;
-                                               rdfs:comment "According to the NLCD 2011, areas of dwarf scrub are dominated by shrubs less than 20 centimeters tall with shrub canopy typically greater than 20% of total vegetation. This type is often co-associated with grasses, sedges, herbs, and non-vascular vegetation. The NLCD 2011 notes that this is intended as an Alaska only land cover. Such thresholds - which are themselves fuzzy - are not asserted in this definition." ;
-                                               rdfs:label "DwarfScrub"@en .
-
-[ rdf:type owl:Axiom ;
-   owl:annotatedSource <http://purl.obolibrary.org/obo/ENVO_01000861> ;
-   owl:annotatedProperty <http://purl.obolibrary.org/obo/IAO_0000116> ;
-   owl:annotatedTarget "As noted in Wikipedia: \"Because the criteria are matters of degree rather than of kind, the definition of a subshrub is not sharply distinguishable from that of a shrub\"" ;
-   <http://www.geneontology.org/formats/oboInOwl#hasDbXref> "https://en.wikipedia.org/wiki/Subshrub"
- ] .
+                                               rdfs:comment "According to the NLCD 2011, areas of dwarf scrub are dominated by shrubs less than 20 centimeters tall (low shrubs) with shrub canopy typically greater than 20% of total vegetation. This type is often co-associated with grasses, sedges, herbs, and non-vascular vegetation. The NLCD 2011 notes that this is intended as an Alaska only land cover. Such thresholds - which are themselves fuzzy - are not asserted in this definition." ;
+                                               rdfs:label "Dwarf Shrub" .
 
 [ rdf:type owl:Axiom ;
    owl:annotatedSource <http://purl.obolibrary.org/obo/ENVO_01000861> ;
@@ -241,15 +256,26 @@ sio:SIO_000300 rdf:type owl:DatatypeProperty ;
                                                             "https://www.mrlc.gov/nlcd11_leg.php"
  ] .
 
+[ rdf:type owl:Axiom ;
+   owl:annotatedSource <http://purl.obolibrary.org/obo/ENVO_01000861> ;
+   owl:annotatedProperty <http://purl.obolibrary.org/obo/IAO_0000116> ;
+   owl:annotatedTarget "As noted in Wikipedia: \"Because the criteria are matters of degree rather than of kind, the definition of a subshrub is not sharply distinguishable from that of a shrub\"" ;
+   <http://www.geneontology.org/formats/oboInOwl#hasDbXref> "https://en.wikipedia.org/wiki/Subshrub"
+ ] .
+
 
 ###  http://purl.obolibrary.org/obo/ENVO_01000869
 <http://purl.obolibrary.org/obo/ENVO_01000869> rdf:type owl:Class ;
-                                               rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_00000043> ;
+                                               rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_00000043> ,
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty :coveredFractionOfRegion ;
+                                                                 owl:someValuesFrom xsd:float
+                                                               ] ;
                                                <http://purl.obolibrary.org/obo/IAO_0000115> "An area of a planet's surface which is primarily covered by a shrubs, young trees, or stunted trees.. The surfaces of this area are in contact with an atmospheric column extending from the planetary boundary layer to the planet's exosphere with little to no physical obstruction." ;
                                                <http://purl.obolibrary.org/obo/IAO_0000116> "As noted in Wikipedia: \"Because the criteria are matters of degree rather than of kind, the definition of a subshrub is not sharply distinguishable from that of a shrub\"" ;
                                                <http://www.geneontology.org/formats/oboInOwl#hasExactSynonym> "area of shrub" ;
-                                               rdfs:comment "According to the NLCD 2011, areas of scrub or shrub are dominated by shrubs; less than 5 meters tall with shrub canopy typically greater than 20% of total vegetation. This class includes true shrubs, young trees in an early successional stage or trees stunted from environmental conditions. Such thresholds - which are themselves fuzzy - are not asserted in this definition." ;
-                                               rdfs:label "Scrub"@en .
+                                               rdfs:comment "According to the NLCD 2011, areas of scrub or shrub are dominated by shrubs; less than 5 meters tall and higher than 20 centiemeters tall (high shrubs), with shrub canopy typically greater than 20% of total vegetation. This class includes true shrubs, young trees in an early successional stage or trees stunted from environmental conditions. Such thresholds - which are themselves fuzzy - are not asserted in this definition." ;
+                                               rdfs:label "Shrub" .
 
 [ rdf:type owl:Axiom ;
    owl:annotatedSource <http://purl.obolibrary.org/obo/ENVO_01000869> ;
@@ -272,11 +298,15 @@ sio:SIO_000300 rdf:type owl:DatatypeProperty ;
 
 ###  http://purl.obolibrary.org/obo/ENVO_01000893
 <http://purl.obolibrary.org/obo/ENVO_01000893> rdf:type owl:Class ;
-                                               rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_00000043> ;
+                                               rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_00000043> ,
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty :coveredFractionOfRegion ;
+                                                                 owl:someValuesFrom xsd:float
+                                                               ] ;
                                                <http://purl.obolibrary.org/obo/IAO_0000115> "An area of a planet's surface which is partly covered by forest or shrubland vegetation and where the underlying soil or substrate is periodically saturated with or covered by water. This area is in contact with an atmospheric column extending from the planetary boundary layer to the planet's exosphere with little to no physical obstruction." ;
                                                <http://purl.obolibrary.org/obo/IAO_0000118> "woody wetlands" ;
                                                rdfs:comment "According to the NLCD 2011, at least 20% of these areas are covered by forest or shrubland vegetation.  Such thresholds - which are themselves fuzzy - are not strictly asserted in this definition." ;
-                                               rdfs:label "WoodyWetland"@en .
+                                               rdfs:label "Wetland Forest" .
 
 [ rdf:type owl:Axiom ;
    owl:annotatedSource <http://purl.obolibrary.org/obo/ENVO_01000893> ;
@@ -313,9 +343,13 @@ sio:SIO_000300 rdf:type owl:DatatypeProperty ;
 
 ###  http://purl.obolibrary.org/obo/ENVO_01001208
 <http://purl.obolibrary.org/obo/ENVO_01001208> rdf:type owl:Class ;
-                                               rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_00000043> ;
+                                               rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_00000043> ,
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty :coveredFractionOfRegion ;
+                                                                 owl:someValuesFrom xsd:float
+                                                               ] ;
                                                <http://purl.obolibrary.org/obo/IAO_0000115> "An area of wetland which overlaps a swamp ecosystem." ;
-                                               rdfs:label "Swamp"@en .
+                                               rdfs:label "Swamp" .
 
 [ rdf:type owl:Axiom ;
    owl:annotatedSource <http://purl.obolibrary.org/obo/ENVO_01001208> ;
@@ -327,37 +361,86 @@ sio:SIO_000300 rdf:type owl:DatatypeProperty ;
 
 ###  http://purl.obolibrary.org/obo/NCIT_C45293
 ncit:C45293 rdf:type owl:Class ;
-            rdfs:subClassOf [ rdf:type owl:Restriction ;
-                              owl:onProperty <http://purl.obolibrary.org/obo/RO_0002303> ;
-                              owl:someValuesFrom <http://purl.obolibrary.org/obo/ENVO_01000739>
-                            ] ;
-            owl:disjointWith geo:Feature ,
-                             ssn:Property ;
             rdfs:label "Species" .
-
-
-###  http://purl.obolibrary.org/obo/NCIT_C54154
-ncit:C54154 rdf:type owl:Class ;
-            rdfs:subClassOf ssn:Property ;
-            rdfs:label "Probability" .
 
 
 ###  http://www.opengis.net/ont/geosparql#Feature
 geo:Feature rdf:type owl:Class ;
-            owl:disjointWith ssn:Property ;
             rdfs:label "Feature" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoECO/VegetationMetric
-<http://www.semanticweb.org/VasileiosDT/ontologies/ontoECO/VegetationMetric> rdf:type owl:Class ;
-                                                                             rdfs:subClassOf ssn:Property ;
-                                                                             rdfs:label "VegetationMetric" .
+###  http://www.purl.dataone.org/odo/ECSO_00010076
+<http://www.purl.dataone.org/odo/ECSO_00010076> rdf:type owl:Class ;
+                                                rdfs:subClassOf :VegetationMetric ;
+                                                rdfs:label "NDVI" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/AverageAndSeasonalChange
+:AverageAndSeasonalChange rdf:type owl:Class ;
+                          rdfs:subClassOf :VegetationMetric ;
+                          rdfs:label "Average And Seasonal Change" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/AvgAndSeasonalChangeOfBackscatterCoef
+:AvgAndSeasonalChangeOfBackscatterCoef rdf:type owl:Class ;
+                                       rdfs:subClassOf :AverageAndSeasonalChange ,
+                                                       :Sentinel1Metric ;
+                                       rdfs:label "Average And Seasonal Change Of Backscatter Coefficient" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/AvgAndSeasonalChangeOfNDVI
+:AvgAndSeasonalChangeOfNDVI rdf:type owl:Class ;
+                            rdfs:subClassOf <http://www.purl.dataone.org/odo/ECSO_00010076> ,
+                                            :AverageAndSeasonalChange ,
+                                            :Sentinel2Metric ;
+                            rdfs:label "Average And Seasonal Change Of NDVI" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/BirdSpecies
 :BirdSpecies rdf:type owl:Class ;
-             rdfs:subClassOf ncit:C45293 ;
-             rdfs:label "BirdSpecies" .
+             rdfs:subClassOf ncit:C45293 ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty <http://purl.obolibrary.org/obo/RO_0002303> ;
+                               owl:someValuesFrom <http://purl.obolibrary.org/obo/ENVO_01000739>
+                             ] ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty <http://purl.obolibrary.org/obo/RO_0002618> ;
+                               owl:someValuesFrom :ObservationRegion
+                             ] ;
+             rdfs:label "Bird Species" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/HorizontalVariability
+:HorizontalVariability rdf:type owl:Class ;
+                       rdfs:subClassOf :VegetationMetric ;
+                       rdfs:label "Horizontal Variability" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/HorizontalVariabilityOfBackscatterCoef
+:HorizontalVariabilityOfBackscatterCoef rdf:type owl:Class ;
+                                        rdfs:subClassOf :HorizontalVariability ,
+                                                        :Sentinel1Metric ;
+                                        rdfs:label "Horizontal Variability Of Backscatter Coefficient" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/HorizontalVariabilityOfNDVI
+:HorizontalVariabilityOfNDVI rdf:type owl:Class ;
+                             rdfs:subClassOf <http://www.purl.dataone.org/odo/ECSO_00010076> ,
+                                             :HorizontalVariability ,
+                                             :Sentinel2Metric ;
+                             rdfs:label "Horizontal Variability Of NDVI" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/HorizontalVegetationHeterogeneity
+:HorizontalVegetationHeterogeneity rdf:type owl:Class ;
+                                   rdfs:subClassOf :LidarGeneratedMetric ;
+                                   rdfs:label "Horizontal Vegetation Heterogeneity" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/LidarGeneratedMetric
+:LidarGeneratedMetric rdf:type owl:Class ;
+                      rdfs:subClassOf :VegetationMetric ;
+                      rdfs:label "Lidar Generated Metric" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/ObservationRegion
@@ -395,16 +478,307 @@ geo:Feature rdf:type owl:Class ;
                                    ] ,
                                    [ rdf:type owl:Restriction ;
                                      owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "16"^^xsd:nonNegativeInteger ;
-                                     owl:onClass <http://www.semanticweb.org/VasileiosDT/ontologies/ontoECO/VegetationMetric>
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :lidar_C_ppr
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :lidar_HH_reedveg_prop
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :lidar_HH_sd
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :lidar_HH_sd_low
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :lidar_VD_1_2
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :lidar_VD_2_3
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :lidar_VV_kurt
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :lidar_VV_p25
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :lidar_VV_std
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :optical_NDVImed
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :optical_NDVIsd_hor_100m
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :optical_NDVIstd
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :radar_VHsd_hor_100m
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :radar_VHstd
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :radar_VVmax
+                                   ] ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty ssn:hasProperty ;
+                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                     owl:onClass :radar_VVstd
                                    ] ;
-                   rdfs:label "ObservationRegion" .
+                   rdfs:label "Observation Region" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/ReedArea
 :ReedArea rdf:type owl:Class ;
-          rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_00000043> ;
+          rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_00000043> ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty :coveredFractionOfRegion ;
+                            owl:someValuesFrom xsd:float
+                          ] ;
           rdfs:label "Reed" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/SatelliteGeneratedMetric
+:SatelliteGeneratedMetric rdf:type owl:Class ;
+                          rdfs:subClassOf :VegetationMetric ;
+                          rdfs:label "Satellite Generated Metric" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/Sentinel1Metric
+:Sentinel1Metric rdf:type owl:Class ;
+                 rdfs:subClassOf :SatelliteGeneratedMetric ;
+                 rdfs:label "Sentinel 1 Metric" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/Sentinel2Metric
+:Sentinel2Metric rdf:type owl:Class ;
+                 rdfs:subClassOf :SatelliteGeneratedMetric ;
+                 rdfs:label "Sentinel 2 Metric" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/VegetationDensity
+:VegetationDensity rdf:type owl:Class ;
+                   rdfs:subClassOf :LidarGeneratedMetric ;
+                   rdfs:label "Vegetation Cover And Density" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/VegetationMetric
+:VegetationMetric rdf:type owl:Class ;
+                  rdfs:subClassOf ssn:Property ;
+                  rdfs:label "Vegetation Metric" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/VerticalVegetationStructure
+:VerticalVegetationStructure rdf:type owl:Class ;
+                             rdfs:subClassOf :LidarGeneratedMetric ;
+                             rdfs:label "Vertical Vegetation Structure" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/lidar_C_ppr
+:lidar_C_ppr rdf:type owl:Class ;
+             rdfs:subClassOf :VegetationDensity ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty sio:SIO_000300 ;
+                               owl:someValuesFrom rdfs:Literal
+                             ] ;
+             rdfs:comment "Ratio of number of ground points to total number of points within 10 m grid cell." ;
+             rdfs:label "Pulse Penetration Ratio" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/lidar_HH_reedveg_prop
+:lidar_HH_reedveg_prop rdf:type owl:Class ;
+                       rdfs:subClassOf :HorizontalVegetationHeterogeneity ,
+                                       [ rdf:type owl:Restriction ;
+                                         owl:onProperty sio:SIO_000300 ;
+                                         owl:someValuesFrom rdfs:Literal
+                                       ] ;
+                       rdfs:comment "Proportion of 10 m grid cells with normalized height > 1 m AND height < 3 m within 100 m radius, based on 95th percentile of normalized z (lidar_VV_p95)." ;
+                       rdfs:label "Proportion of Reed Vegetation" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/lidar_HH_sd
+:lidar_HH_sd rdf:type owl:Class ;
+             rdfs:subClassOf :HorizontalVegetationHeterogeneity ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty sio:SIO_000300 ;
+                               owl:someValuesFrom rdfs:Literal
+                             ] ;
+             rdfs:comment "Standard deviation (within 100 m radius) of 95th percentile of normalized height (lidar_VV_p95 values of 10 m resolution grid cells)." ;
+             rdfs:label "Height Horizontal Variability" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/lidar_HH_sd_low
+:lidar_HH_sd_low rdf:type owl:Class ;
+                 rdfs:subClassOf :HorizontalVegetationHeterogeneity ,
+                                 [ rdf:type owl:Restriction ;
+                                   owl:onProperty sio:SIO_000300 ;
+                                   owl:someValuesFrom rdfs:Literal
+                                 ] ;
+                 rdfs:comment "Standard deviation (within 100 m radius) of 95th percentile of normalized height below 5 m (lidar_VV_p95 values of 10 m resolution grid cells)." ;
+                 rdfs:label "Low Height Horizontal Variability" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/lidar_VD_1_2
+:lidar_VD_1_2 rdf:type owl:Class ;
+              rdfs:subClassOf :VegetationDensity ,
+                              [ rdf:type owl:Restriction ;
+                                owl:onProperty sio:SIO_000300 ;
+                                owl:someValuesFrom rdfs:Literal
+                              ] ;
+              rdfs:comment "Ratio of number of points between 1-2 m relative to total number of vegetation points within 10 m grid cell." ;
+              rdfs:label "Vegetation Density 1-2 m height" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/lidar_VD_2_3
+:lidar_VD_2_3 rdf:type owl:Class ;
+              rdfs:subClassOf :VegetationDensity ,
+                              [ rdf:type owl:Restriction ;
+                                owl:onProperty sio:SIO_000300 ;
+                                owl:someValuesFrom rdfs:Literal
+                              ] ;
+              rdfs:comment "Ratio of number of points between 2-3 m relative to total number of vegetation points within 10 m grid cell." ;
+              rdfs:label "Vegetation Density 2-3 m height" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/lidar_VV_kurt
+:lidar_VV_kurt rdf:type owl:Class ;
+               rdfs:subClassOf :VerticalVegetationStructure ,
+                               [ rdf:type owl:Restriction ;
+                                 owl:onProperty sio:SIO_000300 ;
+                                 owl:someValuesFrom rdfs:Literal
+                               ] ;
+               rdfs:comment "Kurtosis of normalized height within 10 m grid cell." ;
+               rdfs:label "Height Kurtosis" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/lidar_VV_p25
+:lidar_VV_p25 rdf:type owl:Class ;
+              rdfs:subClassOf :VerticalVegetationStructure ,
+                              [ rdf:type owl:Restriction ;
+                                owl:onProperty sio:SIO_000300 ;
+                                owl:someValuesFrom rdfs:Literal
+                              ] ;
+              rdfs:comment "25th percentile of normalized height within 10 m grid cell." ;
+              rdfs:label "Height 25th percentile" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/lidar_VV_std
+:lidar_VV_std rdf:type owl:Class ;
+              rdfs:subClassOf :VerticalVegetationStructure ,
+                              [ rdf:type owl:Restriction ;
+                                owl:onProperty sio:SIO_000300 ;
+                                owl:someValuesFrom rdfs:Literal
+                              ] ;
+              rdfs:comment "Standard deviation of normalized height within 10 m grid cell." ;
+              rdfs:label "Height Standard Deviation" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/optical_NDVImed
+:optical_NDVImed rdf:type owl:Class ;
+                 rdfs:subClassOf :AvgAndSeasonalChangeOfNDVI ,
+                                 [ rdf:type owl:Restriction ;
+                                   owl:onProperty sio:SIO_000300 ;
+                                   owl:someValuesFrom rdfs:Literal
+                                 ] ;
+                 rdfs:comment "The median of NDVI within 10 m grid cells within a year." ;
+                 rdfs:label "Annual Median NDVI" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/optical_NDVIsd_hor_100m
+:optical_NDVIsd_hor_100m rdf:type owl:Class ;
+                         rdfs:subClassOf :HorizontalVariabilityOfNDVI ,
+                                         [ rdf:type owl:Restriction ;
+                                           owl:onProperty sio:SIO_000300 ;
+                                           owl:someValuesFrom rdfs:Literal
+                                         ] ;
+                         rdfs:comment "Standard deviation of the yearly median of NDVI (10 m grid cells) within 100 m radius around the focal grid cell." ;
+                         rdfs:label "Horizontal Variability of Annual Median NDVI" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/optical_NDVIstd
+:optical_NDVIstd rdf:type owl:Class ;
+                 rdfs:subClassOf :AvgAndSeasonalChangeOfNDVI ,
+                                 [ rdf:type owl:Restriction ;
+                                   owl:onProperty sio:SIO_000300 ;
+                                   owl:someValuesFrom rdfs:Literal
+                                 ] ;
+                 rdfs:comment "The standard deviation of NDVI within 10 m grid cells within a year." ;
+                 rdfs:label "NDVI Annual Standard Deviation" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/radar_VHsd_hor_100m
+:radar_VHsd_hor_100m rdf:type owl:Class ;
+                     rdfs:subClassOf :HorizontalVariabilityOfBackscatterCoef ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty sio:SIO_000300 ;
+                                       owl:someValuesFrom rdfs:Literal
+                                     ] ;
+                     rdfs:comment "Standard deviation of the annual median VH (10 m grid cells) within 100 m radius around the focal grid cell." ;
+                     rdfs:label "Horizontal Variability of Median VH" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/radar_VHstd
+:radar_VHstd rdf:type owl:Class ;
+             rdfs:subClassOf :AvgAndSeasonalChangeOfBackscatterCoef ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty sio:SIO_000300 ;
+                               owl:someValuesFrom rdfs:Literal
+                             ] ;
+             rdfs:comment "The standard deviation of VH imageswithin 10 m grid cells within a year." ;
+             rdfs:label "Annual Standard Deviation of VH Polarization" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/radar_VVmax
+:radar_VVmax rdf:type owl:Class ;
+             rdfs:subClassOf :AvgAndSeasonalChangeOfBackscatterCoef ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty sio:SIO_000300 ;
+                               owl:someValuesFrom rdfs:Literal
+                             ] ;
+             rdfs:comment "The maximum of VV images within 10 m grid cells within a year." ;
+             rdfs:label "Annual Maximum of VV Polarization" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/radar_VVstd
+:radar_VVstd rdf:type owl:Class ;
+             rdfs:subClassOf :AvgAndSeasonalChangeOfBackscatterCoef ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty sio:SIO_000300 ;
+                               owl:someValuesFrom rdfs:Literal
+                             ] ;
+             rdfs:comment "The standard deviation of VV images within 10 m grid cells within a year." ;
+             rdfs:label "Annual Standard Deviation of VV Polarization" .
 
 
 ###  http://www.w3.org/ns/ssn/Property

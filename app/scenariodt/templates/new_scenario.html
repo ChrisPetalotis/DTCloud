@@ -1,0 +1,23 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center">
+    <div class="col-3">
+        <h1 class="text-center">Scenario Configuration</h1><br><br>
+        {% load leaflet_tags %}
+        {% leaflet_js plugins="forms" %}
+        {% leaflet_css plugins="forms" %}
+        <form method="POST" >
+            {% csrf_token %}
+            {% load crispy_forms_tags %}
+            {{ sform|crispy }}
+
+            <div class="row d-flex justify-content-center align-items-center">
+                <input type="submit" class="btn btn-info w-25" name="submit" value="Configure" />
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

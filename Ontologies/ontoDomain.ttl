@@ -30,6 +30,11 @@ ontoEco:ObservationRegion rdfs:subClassOf [ rdf:type owl:Restriction ;
                                             owl:onProperty geo:hasCentroid ;
                                             owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                                             owl:onClass gml:Point
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty geo:sfWithin ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoGeo:MeasurementRegion
                                           ] .
 
 

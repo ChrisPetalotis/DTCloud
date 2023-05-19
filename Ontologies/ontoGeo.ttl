@@ -6,6 +6,7 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix sio: <http://semanticscience.org/resource/SIO_> .
+@prefix ssn: <http://www.w3.org/ns/ssn/> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -110,7 +111,7 @@ A continuant cannot be part of an occurrent: use 'participates in'. An occurrent
                                                                                                      <http://purl.obolibrary.org/obo/valid_for_go_gp2term> ,
                                                                                                      <http://purl.obolibrary.org/obo/valid_for_go_ontology> ,
                                                                                                      <http://purl.obolibrary.org/obo/valid_for_gocam> ;
-                                             rdfs:label "partOf"@en ;
+                                             rdfs:label "part of" ;
                                              rdfs:seeAlso <http://ontologydesignpatterns.org/wiki/Community:Parts_and_Collections> ,
                                                           <http://ontologydesignpatterns.org/wiki/Submissions:PartOf> ,
                                                           "http://www.obofoundry.org/ro/#OBO_REL:part_of" .
@@ -121,21 +122,14 @@ A continuant cannot be part of an occurrent: use 'participates in'. An occurrent
                                              rdfs:subPropertyOf <http://purl.obolibrary.org/obo/RO_0002131> ;
                                              rdfs:range geo:Feature ;
                                              <http://purl.obolibrary.org/obo/IAO_0000111> "has part"@en ;
-                                             <http://purl.obolibrary.org/obo/IAO_0000112> "my body has part my brain (continuant parthood, two material entities)"@en ,
-                                                                                          "my stomach has part my stomach cavity (continuant parthood, material entity has part immaterial entity)"@en ,
-                                                                                          "this year has part this day (occurrent parthood)"@en ;
+                                             <http://purl.obolibrary.org/obo/IAO_0000112> "my body has part my brain (continuant parthood, two material entities)"@en ;
                                              <http://purl.obolibrary.org/obo/IAO_0000115> "a core relation that holds between a whole and its part"@en ;
-                                             <http://purl.obolibrary.org/obo/IAO_0000116> "Everything has itself as a part. Any part of any part of a thing is itself part of that thing. Two distinct things cannot have each other as a part."@en ,
-                                                                                          "Occurrents are not subject to change and so parthood between occurrents holds for all the times that the part exists. Many continuants are subject to change, so parthood between continuants will only hold at certain times, but this is difficult to specify in OWL. See https://code.google.com/p/obo-relations/wiki/ROAndTime"@en ,
-                                                                                          """Parthood requires the part and the whole to have compatible classes: only an occurrent have an occurrent as part; only a process can have a process as part; only a continuant can have a continuant as part; only an independent continuant can have an independent continuant as part; only a specifically dependent continuant can have a specifically dependent continuant as part; only a generically dependent continuant can have a generically dependent continuant as part. (This list is not exhaustive.)
-
-A continuant cannot have an occurrent as part: use 'participates in'. An occurrent cannot have a continuant as part: use 'has participant'. An immaterial entity cannot have a material entity as part: use 'location of'. An independent continuant cannot have a specifically dependent continuant as part: use 'bearer of'. A specifically dependent continuant cannot have an independent continuant as part: use 'inheres in'."""@en ;
                                              <http://purl.obolibrary.org/obo/IAO_0000118> "has_part"@en ;
                                              <http://purl.obolibrary.org/obo/RO_0001900> <http://purl.obolibrary.org/obo/RO_0001901> ;
                                              <http://www.geneontology.org/formats/oboInOwl#inSubset> <http://purl.obolibrary.org/obo/valid_for_go_annotation_extension> ,
                                                                                                      <http://purl.obolibrary.org/obo/valid_for_go_ontology> ,
                                                                                                      <http://purl.obolibrary.org/obo/valid_for_gocam> ;
-                                             rdfs:label "hasPart"@en .
+                                             rdfs:label "has part" .
 
 
 ###  http://purl.obolibrary.org/obo/RO_0001018
@@ -146,16 +140,16 @@ A continuant cannot have an occurrent as part: use 'participates in'. An occurre
                                             rdfs:domain geo:Feature ;
                                             rdfs:range geo:Feature ;
                                             <http://purl.obolibrary.org/obo/IAO_0000111> "contained in"@en ;
-                                            <http://purl.obolibrary.org/obo/IAO_0000116> "Containment is location not involving parthood, and arises only where some immaterial continuant is involved." ,
-                                                                                         "Containment obtains in each case between material and immaterial continuants, for instance: lung contained_in thoracic cavity; bladder contained_in pelvic cavity. Hence containment is not a transitive relation.    If c part_of c1 at t then we have also, by our definition and by the axioms of mereology applied to spatial regions, c located_in c1 at t. Thus, many examples of instance-level location relations for continuants are in fact cases of instance-level parthood. For material continuants location and parthood coincide. Containment is location not involving parthood, and arises only where some immaterial continuant is involved. To understand this relation, we first define overlap for continuants as follows:    c1 overlap c2 at t =def for some c, c part_of c1 at t and c part_of c2 at t. The containment relation on the instance level can then be defined (see definition):"@en ,
+                                            <http://purl.obolibrary.org/obo/IAO_0000116> "Containment obtains in each case between material and immaterial continuants, for instance: lung contained_in thoracic cavity; bladder contained_in pelvic cavity. Hence containment is not a transitive relation.    If c part_of c1 at t then we have also, by our definition and by the axioms of mereology applied to spatial regions, c located_in c1 at t. Thus, many examples of instance-level location relations for continuants are in fact cases of instance-level parthood. For material continuants location and parthood coincide. Containment is location not involving parthood, and arises only where some immaterial continuant is involved. To understand this relation, we first define overlap for continuants as follows:    c1 overlap c2 at t =def for some c, c part_of c1 at t and c part_of c2 at t. The containment relation on the instance level can then be defined (see definition):"@en ,
                                                                                          """Intended meaning:
 domain: material entity
 range: spatial region or site (immaterial continuant)
-        """@en ;
+        """@en ,
+                                                                                         "Containment is location not involving parthood, and arises only where some immaterial continuant is involved." ;
                                             <http://purl.obolibrary.org/obo/IAO_0000118> "contained_in"@en ;
                                             <http://purl.obolibrary.org/obo/RO_0001900> <http://purl.obolibrary.org/obo/RO_0001901> ;
                                             <http://www.geneontology.org/formats/oboInOwl#inSubset> <http://purl.obolibrary.org/obo/ro/subsets#ro-eco> ;
-                                            rdfs:label "containedIn"@en .
+                                            rdfs:label "contained in" .
 
 
 ###  http://purl.obolibrary.org/obo/RO_0001019
@@ -165,7 +159,7 @@ range: spatial region or site (immaterial continuant)
                                             <http://purl.obolibrary.org/obo/IAO_0000111> "contains"@en ;
                                             <http://purl.obolibrary.org/obo/RO_0001900> <http://purl.obolibrary.org/obo/RO_0001901> ;
                                             <http://www.geneontology.org/formats/oboInOwl#inSubset> <http://purl.obolibrary.org/obo/ro/subsets#ro-eco> ;
-                                            rdfs:label "contains"@en .
+                                            rdfs:label "contains" .
 
 
 ###  http://purl.obolibrary.org/obo/RO_0002131
@@ -178,8 +172,7 @@ range: spatial region or site (immaterial continuant)
                                             <http://www.geneontology.org/formats/oboInOwl#inSubset> <http://purl.obolibrary.org/obo/valid_for_go_annotation_extension> ,
                                                                                                     <http://purl.obolibrary.org/obo/valid_for_gocam> ,
                                                                                                     <http://purl.obolibrary.org/obo/ro/subsets#ro-eco> ;
-                                            rdfs:label "overlaps" ,
-                                                       "overlaps"@en .
+                                            rdfs:label "overlaps" .
 
 
 ###  http://purl.obolibrary.org/obo/RO_0002323
@@ -188,7 +181,7 @@ range: spatial region or site (immaterial continuant)
                                             <http://purl.obolibrary.org/obo/IAO_0000117> "Chris Mungall" ;
                                             <http://purl.obolibrary.org/obo/IAO_0000232> "Do not use this relation directly. It is ended as a grouping for a diverse set of relations, all involving parthood or connectivity relationships" ;
                                             <http://purl.obolibrary.org/obo/RO_0001900> <http://purl.obolibrary.org/obo/RO_0001901> ;
-                                            rdfs:label "mereotopologicallyRelatedTo"@en .
+                                            rdfs:label "mereotopologically related to" .
 
 
 ###  http://purl.obolibrary.org/obo/RO_0002350
@@ -203,7 +196,7 @@ range: spatial region or site (immaterial continuant)
                                                                                          "member part of" ;
                                             <http://purl.obolibrary.org/obo/IAO_0000119> "SIO" ;
                                             <http://purl.obolibrary.org/obo/RO_0001900> <http://purl.obolibrary.org/obo/RO_0001901> ;
-                                            rdfs:label "memberOf"@en .
+                                            rdfs:label "member of" .
 
 
 ###  http://purl.obolibrary.org/obo/RO_0002351
@@ -214,30 +207,34 @@ range: spatial region or site (immaterial continuant)
                                             <http://purl.obolibrary.org/obo/IAO_0000115> "has member is a mereological relation between a collection and an item." ;
                                             <http://purl.obolibrary.org/obo/IAO_0000119> "SIO" ;
                                             <http://purl.obolibrary.org/obo/RO_0001900> <http://purl.obolibrary.org/obo/RO_0001901> ;
-                                            rdfs:label "hasMember"@en .
+                                            rdfs:label "has member" .
 
 
 ###  http://www.opengis.net/gml/3.2/boundedBy
 gml:boundedBy rdf:type owl:ObjectProperty ;
-              rdfs:range gml:Envelope .
+              rdfs:range gml:Envelope ;
+              rdfs:label "bounded by" .
 
 
 ###  http://www.opengis.net/gml/3.2/exterior
 gml:exterior rdf:type owl:ObjectProperty ;
              rdfs:domain gml:Polygon ;
-             rdfs:range gml:LinearRing .
+             rdfs:range gml:LinearRing ;
+             rdfs:label "exterior" .
 
 
 ###  http://www.opengis.net/gml/3.2/interior
 gml:interior rdf:type owl:ObjectProperty ;
              rdfs:domain gml:Polygon ;
-             rdfs:range gml:LinearRing .
+             rdfs:range gml:LinearRing ;
+             rdfs:label "interior" .
 
 
 ###  http://www.opengis.net/gml/3.2/surfaceMember
 gml:surfaceMember rdf:type owl:ObjectProperty ;
                   rdfs:domain gml:MultiSurface ;
-                  rdfs:range gml:Polygon .
+                  rdfs:range gml:Polygon ;
+                  rdfs:label "surface member" .
 
 
 ###  http://www.opengis.net/ont/geosparql#hasCentroid
@@ -245,14 +242,14 @@ geo:hasCentroid rdf:type owl:ObjectProperty ;
                 rdfs:subPropertyOf geo:hasGeometry ;
                 rdfs:domain geo:Feature ;
                 rdfs:range gml:Point ;
-                rdfs:label "hasCentroid" .
+                rdfs:label "has Centroid" .
 
 
 ###  http://www.opengis.net/ont/geosparql#hasGeometry
 geo:hasGeometry rdf:type owl:ObjectProperty ;
                 rdfs:domain geo:Feature ;
                 rdfs:range geo:Geometry ;
-                rdfs:label "hasGeometry" .
+                rdfs:label "has Geometry" .
 
 
 ###  http://www.opengis.net/ont/geosparql#sfWithin
@@ -260,7 +257,14 @@ geo:sfWithin rdf:type owl:ObjectProperty ;
              rdfs:subPropertyOf <http://purl.obolibrary.org/obo/RO_0001018> ;
              rdfs:domain geo:Feature ;
              rdfs:range geo:Feature ;
-             rdfs:label "isWithin" .
+             rdfs:label "is within" .
+
+
+###  http://www.w3.org/ns/ssn/hasProperty
+ssn:hasProperty rdf:type owl:ObjectProperty ;
+                rdfs:domain geo:Feature ;
+                rdfs:range ssn:Property ;
+                rdfs:label "has Property" .
 
 
 #################################################################
@@ -275,58 +279,72 @@ geo:sfWithin rdf:type owl:ObjectProperty ;
 
 ###  http://www.opengis.net/gml/3.2/id
 gml:id rdf:type owl:DatatypeProperty ;
-       rdfs:range xsd:string .
+       rdfs:range xsd:string ;
+       rdfs:label "id" .
 
 
 ###  http://www.opengis.net/gml/3.2/lowerCorner
 gml:lowerCorner rdf:type owl:DatatypeProperty ;
                 rdfs:domain gml:Envelope ;
-                rdfs:range xsd:string .
+                rdfs:range xsd:string ;
+                rdfs:label "lowerCorner" .
 
 
 ###  http://www.opengis.net/gml/3.2/posList
 gml:posList rdf:type owl:DatatypeProperty ;
-            rdfs:range xsd:string .
+            rdfs:range xsd:string ;
+            rdfs:label "posList" .
 
 
 ###  http://www.opengis.net/gml/3.2/srsName
 gml:srsName rdf:type owl:DatatypeProperty ;
-            rdfs:range xsd:string .
+            rdfs:range xsd:string ;
+            rdfs:label "srsName" .
 
 
 ###  http://www.opengis.net/gml/3.2/upperCorner
 gml:upperCorner rdf:type owl:DatatypeProperty ;
                 rdfs:domain gml:Envelope ;
-                rdfs:range xsd:string .
+                rdfs:range xsd:string ;
+                rdfs:label "upperCorner" .
 
 
 ###  http://www.opengis.net/ont/geosparql#asWKT
 geo:asWKT rdf:type owl:DatatypeProperty ;
-          rdfs:range geo:wktLiteral .
+          rdfs:range geo:wktLiteral ;
+          rdfs:label "asWKT" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoGeo/Area
 :Area rdf:type owl:DatatypeProperty ;
       rdfs:domain geo:Feature ;
-      rdfs:range xsd:float .
+      rdfs:range xsd:float ;
+      rdfs:comment "The area of the measurement region" ;
+      rdfs:label "Area" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoGeo/ID
 :ID rdf:type owl:DatatypeProperty ;
     rdfs:domain geo:Feature ;
-    rdfs:range xsd:integer .
+    rdfs:range xsd:integer ;
+    rdfs:label "ID" ,
+               "The ID number of the measurement region." .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoGeo/Perimeter
 :Perimeter rdf:type owl:DatatypeProperty ;
            rdfs:domain geo:Feature ;
-           rdfs:range xsd:float .
+           rdfs:range xsd:float ;
+           rdfs:comment "The perimeter of the measurement region." ;
+           rdfs:label "Perimeter" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoGeo/Year
 :Year rdf:type owl:DatatypeProperty ;
       rdfs:domain geo:Feature ;
-      rdfs:range xsd:integer .
+      rdfs:range xsd:integer ;
+      rdfs:comment "The year the measurement happened in the measurement region." ;
+      rdfs:label "Year" .
 
 
 #################################################################
@@ -335,12 +353,14 @@ geo:asWKT rdf:type owl:DatatypeProperty ;
 
 ###  http://www.opengis.net/gml/3.2/Envelope
 gml:Envelope rdf:type owl:Class ;
-             rdfs:subClassOf geo:Geometry .
+             rdfs:subClassOf geo:Geometry ;
+             rdfs:label "Envelope" .
 
 
 ###  http://www.opengis.net/gml/3.2/LinearRing
 gml:LinearRing rdf:type owl:Class ;
-               rdfs:subClassOf geo:Geometry .
+               rdfs:subClassOf geo:Geometry ;
+               rdfs:label "Linear Ring" .
 
 
 ###  http://www.opengis.net/gml/3.2/MultiSurface
@@ -350,12 +370,14 @@ gml:MultiSurface rdf:type owl:Class ;
                                    owl:onProperty gml:surfaceMember ;
                                    owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                                    owl:onClass gml:Polygon
-                                 ] .
+                                 ] ;
+                 rdfs:label "MultiSurface" .
 
 
 ###  http://www.opengis.net/gml/3.2/Point
 gml:Point rdf:type owl:Class ;
-          rdfs:subClassOf geo:Geometry .
+          rdfs:subClassOf geo:Geometry ;
+          rdfs:label "Point" .
 
 
 ###  http://www.opengis.net/gml/3.2/Polygon
@@ -365,11 +387,13 @@ gml:Polygon rdf:type owl:Class ;
                               owl:onProperty gml:exterior ;
                               owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                               owl:onClass gml:LinearRing
-                            ] .
+                            ] ;
+            rdfs:label "Polygon" .
 
 
 ###  http://www.opengis.net/ont/geosparql#Feature
-geo:Feature rdf:type owl:Class .
+geo:Feature rdf:type owl:Class ;
+            rdfs:label "Feature" .
 
 
 ###  http://www.opengis.net/ont/geosparql#FeatureCollection
@@ -379,11 +403,12 @@ geo:FeatureCollection rdf:type owl:Class ;
                                         owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                                         owl:onClass geo:Feature
                                       ] ;
-                      rdfs:label "FeatureCollection" .
+                      rdfs:label "Feature Collection" .
 
 
 ###  http://www.opengis.net/ont/geosparql#Geometry
-geo:Geometry rdf:type owl:Class .
+geo:Geometry rdf:type owl:Class ;
+             rdfs:label "Geometry" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoGeo/MeasurementRegion
@@ -393,7 +418,13 @@ geo:Geometry rdf:type owl:Class .
                                      owl:onProperty geo:hasGeometry ;
                                      owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                                      owl:onClass gml:MultiSurface
-                                   ] .
+                                   ] ;
+                   rdfs:label "Measurement Region" .
+
+
+###  http://www.w3.org/ns/ssn/Property
+ssn:Property rdf:type owl:Class ;
+             rdfs:label "Property" .
 
 
 ###  Generated by the OWL API (version 4.5.24.2023-01-14T21:28:32Z) https://github.com/owlcs/owlapi

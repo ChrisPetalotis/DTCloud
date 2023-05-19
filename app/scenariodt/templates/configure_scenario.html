@@ -1,0 +1,22 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center">
+    <div class="col-3">
+        <h1 class="text-center">Scenario Configuration</h1><br><br>
+    </div>
+</div>
+
+<div style="margin-top: 4%;">
+    <br><br>
+    <div class="mainMenu">
+        <a class="buttonMain" href="{% url 'new_scenario' %}">New Scenario</a>
+    </div>
+    <br><br>
+    <div class="mainMenu">
+        <a class="buttonMain" href="{% url 'select_scenario' %}">Reconfigure Scenario</a>
+    </div>
+</div>
+
+{% endblock %}

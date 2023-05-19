@@ -1,0 +1,45 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+    <p>Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+    {% else %}
+    <p>Please login to see this page.</p>
+    {% endif %}
+{% endif %}
+
+{% if user.is_authenticated %}
+<p>Already authenticated</p>
+{% else %}
+
+<div class="d-flex justify-content-center">
+    <div class="col-3">
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        {% load crispy_forms_tags %}
+        {{ form|crispy }}
+        
+        
+        
+        <div class="row d-flex justify-content-center">
+            <input type="submit" class="btn btn-info w-25" value="login">
+            <input type="hidden" name="next" value="{{ next }}">
+        </div>
+        
+
+        <div class="row d-flex justify-content-center mt-2" >
+            <a href='{% url 'register' %}'>Or create a new account! </a>
+        </div>
+    </form>
+    </div>
+</div>
+
+{% endif %}
+
+{# Assumes you set up the password_reset view in your URLconf #}
+{% comment %} <p><a href="{% url 'password_reset' %}">Lost password?</a></p> {% endcomment %}
+
+{% endblock %}
