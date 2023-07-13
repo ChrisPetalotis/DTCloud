@@ -7,9 +7,11 @@
 </div>
 <div class="d-flex justify-content-center align-items-center">
     <div class="row d-flex justify-content-center align-items-center">
-        {% for url in scenario_img_urls %}
-            <div class="justify-content-center align-items-center">
+        {% for url, name in scenario_img_urls.items %}
+            <div class="d-flex justify-content-center align-items-center" style="flex-direction: column; flex-wrap: wrap;">
+                <p class="text-center">{{ name }}</p>
                 <img src="{{ url }}" alt="ScenarioResults">
+                <br><br>
             </div>
         {% endfor %}
     </div>

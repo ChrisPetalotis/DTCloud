@@ -3,6 +3,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @base <http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/> .
 
@@ -10,36 +11,54 @@
                                                               rdfs:label "Workflow Ontology" .
 
 #################################################################
+#    Datatypes
+#################################################################
+
+###  http://www.w3.org/2000/01/rdf-schema#Literal
+rdfs:Literal rdfs:label "literal" .
+
+
+###  http://www.w3.org/2001/XMLSchema#string
+xsd:string rdfs:label "string" .
+
+
+#################################################################
 #    Object Properties
 #################################################################
 
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/associatedEntity
+:associatedEntity rdf:type owl:ObjectProperty ;
+                  rdfs:domain :WorkflowCondition ;
+                  rdfs:label "associatedEntity" .
+
+
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/employsAgent
 :employsAgent rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf owl:topObjectProperty ;
-              rdfs:domain :Service ;
-              rdfs:range :SoftwareAgent ;
+              rdfs:domain prov:Agent ;
+              rdfs:range prov:Agent ;
               rdfs:label "employsAgent" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/follows
 :follows rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf owl:topObjectProperty ;
-         rdfs:domain :Activity ;
-         rdfs:range :Activity ;
+         rdfs:domain prov:Activity ;
+         rdfs:range prov:Activity ;
          rdfs:label "follows" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasEffect
 :hasEffect rdf:type owl:ObjectProperty ;
            rdfs:subPropertyOf owl:topObjectProperty ;
-           rdfs:domain :Activity ;
+           rdfs:domain prov:Activity ;
+           rdfs:range :WorkflowCondition ;
            rdfs:label "hasEffect" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasInput
 :hasInput rdf:type owl:ObjectProperty ;
           rdfs:subPropertyOf owl:topObjectProperty ;
-          rdfs:domain :Activity ;
+          rdfs:domain prov:Activity ;
           rdfs:range :Data ;
           rdfs:label "hasInput" .
 
@@ -47,7 +66,7 @@
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasOutput
 :hasOutput rdf:type owl:ObjectProperty ;
            rdfs:subPropertyOf owl:topObjectProperty ;
-           rdfs:domain :Activity ;
+           rdfs:domain prov:Activity ;
            rdfs:range :Data ;
            rdfs:label "hasOutput" .
 
@@ -56,56 +75,95 @@
 :hasPart rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf owl:topObjectProperty ;
          owl:inverseOf :isPartOf ;
-         rdfs:domain :Activity ;
-         rdfs:range :Activity ;
+         rdfs:domain prov:Activity ;
+         rdfs:range prov:Activity ;
          rdfs:label "hasPart" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasPrecondition
 :hasPrecondition rdf:type owl:ObjectProperty ;
                  rdfs:subPropertyOf owl:topObjectProperty ;
-                 rdfs:domain :Activity ;
+                 rdfs:domain prov:Activity ;
+                 rdfs:range :WorkflowCondition ;
                  rdfs:label "hasPrecondition" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hostsSoftwareAgent
+:hostsSoftwareAgent rdf:type owl:ObjectProperty ;
+                    rdfs:subPropertyOf owl:topObjectProperty ;
+                    rdfs:domain :Service ;
+                    rdfs:range prov:SoftwareAgent ;
+                    rdfs:label "hostsSoftwareAgent" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/isPartOf
 :isPartOf rdf:type owl:ObjectProperty ;
-          rdfs:domain :Activity ;
-          rdfs:range :Activity ;
+          rdfs:domain prov:Activity ;
+          rdfs:range prov:Activity ;
           rdfs:label "isPartOf" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/performs
 :performs rdf:type owl:ObjectProperty ;
           rdfs:subPropertyOf owl:topObjectProperty ;
-          rdfs:domain :Agent ;
-          rdfs:range :Activity ;
+          rdfs:domain prov:Agent ;
+          rdfs:range prov:Activity ;
           rdfs:label "performs" .
 
 
 ###  http://www.w3.org/ns/prov#actsOnBehalfOf
-<http://www.w3.org/ns/prov#actsOnBehalfOf> rdf:type owl:ObjectProperty ;
-                                           rdfs:domain :SoftwareAgent ;
-                                           rdfs:range :Person ;
-                                           rdfs:label "actsOnBehalfOf" .
+prov:actsOnBehalfOf rdf:type owl:ObjectProperty ;
+                    rdfs:domain prov:SoftwareAgent ;
+                    rdfs:range prov:Person ;
+                    rdfs:label "actsOnBehalfOf" .
 
 
 #################################################################
 #    Data properties
 #################################################################
 
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasConfigDir
+:hasConfigDir rdf:type owl:DatatypeProperty ;
+              rdfs:label "hasConfigDir" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasDataDir
+:hasDataDir rdf:type owl:DatatypeProperty ;
+            rdfs:label "hasDataDir" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasDescription
+:hasDescription rdf:type owl:DatatypeProperty ;
+                rdfs:range xsd:string ;
+                rdfs:label "hasDescription" .
+
+
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasEndpoint
 :hasEndpoint rdf:type owl:DatatypeProperty ;
              rdfs:domain :Service ;
-             rdfs:range xsd:anyURI ,
-                        xsd:string ;
-             rdfs:comment "hasEndpoint" .
+             rdfs:range xsd:string ;
+             rdfs:label "hasEndpoint" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasName
 :hasName rdf:type owl:DatatypeProperty ;
          rdfs:range xsd:string ;
          rdfs:label "hasName" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasRequirements
+:hasRequirements rdf:type owl:DatatypeProperty ;
+                 rdfs:subPropertyOf owl:topDataProperty ;
+                 rdfs:domain :Service ;
+                 rdfs:range xsd:string ;
+                 rdfs:label "hasRequirements" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasRootDir
+:hasRootDir rdf:type owl:DatatypeProperty ;
+            rdfs:domain :Service ;
+            rdfs:range xsd:string ;
+            rdfs:label "hasRootDir" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/hasSPARQLEndpoint
@@ -123,90 +181,19 @@
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/sourceCode
 :sourceCode rdf:type owl:DatatypeProperty ;
-            rdfs:domain :SoftwareAgent ;
+            rdfs:domain prov:SoftwareAgent ;
             rdfs:range xsd:string ;
-            rdfs:comment "sourceCode" .
+            rdfs:label "sourceCode" .
 
 
 #################################################################
 #    Classes
 #################################################################
 
-###  http://webprotege.stanford.edu/RB1cdAfFjZOx5OqL78Bq60o
-<http://webprotege.stanford.edu/RB1cdAfFjZOx5OqL78Bq60o> rdf:type owl:Class ;
-                                                         rdfs:subClassOf :Activity ,
-                                                                         [ rdf:type owl:Restriction ;
-                                                                           owl:onProperty :hasEffect ;
-                                                                           owl:someValuesFrom :ExistingUser
-                                                                         ] ;
-                                                         rdfs:label "UserRegistration"@en .
-
-
-###  http://webprotege.stanford.edu/RBX4ocHdDBxcVxpgrmRSgtm
-<http://webprotege.stanford.edu/RBX4ocHdDBxcVxpgrmRSgtm> rdf:type owl:Class ;
-                                                         rdfs:subClassOf :Activity ,
-                                                                         [ rdf:type owl:Restriction ;
-                                                                           owl:onProperty :hasPrecondition ;
-                                                                           owl:someValuesFrom :ExistingUser
-                                                                         ] ;
-                                                         rdfs:label "UserAuthentication"@en .
-
-
-###  http://webprotege.stanford.edu/RBaUFew4uq7ijun0mWHBdzv
-<http://webprotege.stanford.edu/RBaUFew4uq7ijun0mWHBdzv> rdf:type owl:Class ;
-                                                         rdfs:subClassOf :Activity ;
-                                                         rdfs:label "Visualization" .
-
-
-###  http://webprotege.stanford.edu/RBjQDWGg6ULUOzjNiP3OqN7
-<http://webprotege.stanford.edu/RBjQDWGg6ULUOzjNiP3OqN7> rdf:type owl:Class ;
-                                                         rdfs:subClassOf <http://webprotege.stanford.edu/RBaUFew4uq7ijun0mWHBdzv> ,
-                                                                         [ rdf:type owl:Restriction ;
-                                                                           owl:onProperty :hasPart ;
-                                                                           owl:someValuesFrom :SelectQuery
-                                                                         ] ;
-                                                         rdfs:label "Graph Visualization" .
-
-
-###  http://webprotege.stanford.edu/RCj5cmDtgZlRK4LjDz0aIfA
-<http://webprotege.stanford.edu/RCj5cmDtgZlRK4LjDz0aIfA> rdf:type owl:Class ;
-                                                         rdfs:subClassOf <http://webprotege.stanford.edu/RBaUFew4uq7ijun0mWHBdzv> ;
-                                                         rdfs:label "Results Visualization" .
-
-
-###  http://webprotege.stanford.edu/RDt7C24tYJeqnMAEluerwq0
-<http://webprotege.stanford.edu/RDt7C24tYJeqnMAEluerwq0> rdf:type owl:Class ;
-                                                         rdfs:subClassOf :Activity ,
-                                                                         [ rdf:type owl:Restriction ;
-                                                                           owl:onProperty :hasOutput ;
-                                                                           owl:someValuesFrom :Data
-                                                                         ] ;
-                                                         rdfs:label "Simulation"@en .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/APICall
-:APICall rdf:type owl:Class ;
-         rdfs:subClassOf :Activity ;
-         rdfs:label "API Call" .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Activity
-:Activity rdf:type owl:Class ;
-          rdfs:label "Activity" .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Agent
-:Agent rdf:type owl:Class ;
-       rdfs:subClassOf [ rdf:type owl:Restriction ;
-                         owl:onProperty :performs ;
-                         owl:someValuesFrom :Activity
-                       ] ;
-       rdfs:label "Agent" .
-
-
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/DB
 :DB rdf:type owl:Class ;
     rdfs:subClassOf :Service ;
+    rdfs:comment "A Service that stores data related to the Digital Twin, and can be queried to retrieve those data." ;
     rdfs:label "Database" .
 
 
@@ -218,6 +205,8 @@
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Data
 :Data rdf:type owl:Class ;
+      rdfs:subClassOf prov:Entity ;
+      rdfs:comment "Data is any kind of information that is passes from an Activtiy to another Activity. It could be anythin from a simple string to a whole pandas DataFrame. The type of Data is denoted by the hasType property." ;
       rdfs:label "Data" .
 
 
@@ -230,15 +219,15 @@
                                ] ,
                                [ rdf:type owl:Restriction ;
                                  owl:onProperty :hasPart ;
-                                 owl:someValuesFrom :SelectQuery
+                                 owl:someValuesFrom :SelectQuerying
                                ] ,
                                [ rdf:type owl:Restriction ;
                                  owl:onProperty :hasPart ;
-                                 owl:someValuesFrom :TransformationToRDF
+                                 owl:someValuesFrom :UpdateQuerying
                                ] ,
                                [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasPart ;
-                                 owl:someValuesFrom :UpdateQuery
+                                 owl:onProperty :hasPrecondition ;
+                                 owl:someValuesFrom :RunningKB
                                ] ;
                rdfs:comment "The activity of receiving data from the Physical Part, transforming them to a form that is consistent to the domain ontologies, and saving them to the Knowledge Graph." ;
                rdfs:label "Data Ingestion" .
@@ -246,14 +235,10 @@
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/DataIngestionAgent
 :DataIngestionAgent rdf:type owl:Class ;
-                    rdfs:subClassOf :SoftwareAgent ,
+                    rdfs:subClassOf prov:SoftwareAgent ,
                                     [ rdf:type owl:Restriction ;
                                       owl:onProperty :employsAgent ;
                                       owl:someValuesFrom :SPARQLQueryAgent
-                                    ] ,
-                                    [ rdf:type owl:Restriction ;
-                                      owl:onProperty :employsAgent ;
-                                      owl:someValuesFrom :TransformationToRDFAgent
                                     ] ,
                                     [ rdf:type owl:Restriction ;
                                       owl:onProperty :performs ;
@@ -264,18 +249,22 @@
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/DataTransformation
 :DataTransformation rdf:type owl:Class ;
-                    rdfs:subClassOf :Activity ,
+                    rdfs:subClassOf prov:Activity ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasInput ;
+                                      owl:someValuesFrom :Data
+                                    ] ,
                                     [ rdf:type owl:Restriction ;
                                       owl:onProperty :hasOutput ;
                                       owl:someValuesFrom :Data
                                     ] ;
-                    rdfs:comment "The activity of transforming data from one form to another." ;
+                    rdfs:comment "The activity of transforming data from one form to another. Data transformation is a major part of the Data Ingestion phase in a DT. It should be noted that this Class only denotes an Activity that has transformation as the its main role. For example, transforming a CSV or a pandas DataFrame to RDF data. There could be minor data transformations within other Activities but describing them with a class was not deemed necessary." ;
                     rdfs:label "Data Transformation" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/DataTransformationAgent
 :DataTransformationAgent rdf:type owl:Class ;
-                         rdfs:subClassOf :SoftwareAgent ,
+                         rdfs:subClassOf prov:SoftwareAgent ,
                                          [ rdf:type owl:Restriction ;
                                            owl:onProperty :performs ;
                                            owl:someValuesFrom :DataTransformation
@@ -283,22 +272,20 @@
                          rdfs:label "Data Transformation Agent" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Endpoint
-:Endpoint rdf:type owl:Class ;
-          rdfs:subClassOf :Message ;
-          rdfs:label "Endpoint" .
-
-
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/ExistingUser
 :ExistingUser rdf:type owl:Class ;
-              rdfs:subClassOf :WorkflowCondition ;
+              rdfs:subClassOf :UserDBUpdate ;
               rdfs:label "Existing User" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/FilePath
-:FilePath rdf:type owl:Class ;
-          rdfs:subClassOf :Message ;
-          rdfs:label "File Path" .
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/GraphVisualization
+:GraphVisualization rdf:type owl:Class ;
+                    rdfs:subClassOf :Visualization ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasPart ;
+                                      owl:someValuesFrom :SelectQuerying
+                                    ] ;
+                    rdfs:label "Graph Visualization" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/GraphVisualizationAgent
@@ -306,16 +293,16 @@
                          rdfs:subClassOf :VisualizationAgent ,
                                          [ rdf:type owl:Restriction ;
                                            owl:onProperty :performs ;
-                                           owl:someValuesFrom <http://webprotege.stanford.edu/RBjQDWGg6ULUOzjNiP3OqN7>
+                                           owl:someValuesFrom :GraphVisualization
                                          ] ;
-                         rdfs:label "GraphVisualizationAgent"@en .
+                         rdfs:label "Graph Visualization Agent" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/IngestionService
 :IngestionService rdf:type owl:Class ;
                   rdfs:subClassOf :Service ,
                                   [ rdf:type owl:Restriction ;
-                                    owl:onProperty :employsAgent ;
+                                    owl:onProperty :hostsSoftwareAgent ;
                                     owl:someValuesFrom :DataIngestionAgent
                                   ] ;
                   rdfs:label "Ingestion Service" .
@@ -324,18 +311,24 @@
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/KB
 :KB rdf:type owl:Class ;
     rdfs:subClassOf :DB ;
+    rdfs:comment "A Graph Database or Triple Store, that stores data in the RDF format and provides an endpoint that can be queried using SPARQL." ;
     rdfs:label "Knowledge Base" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/KBUpdate
 :KBUpdate rdf:type owl:Class ;
-          rdfs:subClassOf :DBUpdate ;
+          rdfs:subClassOf :DBUpdate ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty :associatedEntity ;
+                            owl:someValuesFrom :KB
+                          ] ;
           rdfs:label "Knowledge Base Update" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Message
 :Message rdf:type owl:Class ;
          rdfs:subClassOf :Data ;
+         rdfs:comment "When an Activity hasInput some Message, it denotes communication between 2 different Services. For example, the Scenario Framework Service sends a message to the Simulation Service, including the data required by the Simulation Service to run the Simulation Model." ;
          rdfs:label "Message" .
 
 
@@ -352,34 +345,38 @@
                      rdfs:label "Not Executed Scenario" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/PandasDF
-:PandasDF rdf:type owl:Class ;
-          rdfs:subClassOf :Data ;
-          rdfs:label "Pandas DataFrame" .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Person
-:Person rdf:type owl:Class ;
-        rdfs:subClassOf :Agent ;
-        rdfs:label "Person"@en .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Quads
-:Quads rdf:type owl:Class ;
-       rdfs:subClassOf :RDF ;
-       rdfs:label "Quads" .
-
-
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/QueryAgent
 :QueryAgent rdf:type owl:Class ;
-            rdfs:subClassOf :SoftwareAgent ;
+            rdfs:subClassOf prov:SoftwareAgent ;
             rdfs:label "Query Agent" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/RDF
-:RDF rdf:type owl:Class ;
-     rdfs:subClassOf :Data ;
-     rdfs:label "RDF" .
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Querying
+:Querying rdf:type owl:Class ;
+          rdfs:subClassOf prov:Activity ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty :hasPrecondition ;
+                            owl:someValuesFrom :RunningDB
+                          ] ;
+          rdfs:label "Querying" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/ResultsVisualization
+:ResultsVisualization rdf:type owl:Class ;
+                      rdfs:subClassOf :Visualization ,
+                                      [ rdf:type owl:Restriction ;
+                                        owl:onProperty :hasInput ;
+                                        owl:someValuesFrom :Message
+                                      ] ,
+                                      [ rdf:type owl:Restriction ;
+                                        owl:onProperty :hasOutput ;
+                                        owl:someValuesFrom :Message
+                                      ] ,
+                                      [ rdf:type owl:Restriction ;
+                                        owl:onProperty :hasPrecondition ;
+                                        owl:someValuesFrom :RunningVisualizationService
+                                      ] ;
+                      rdfs:label "Results Visualization" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/ResultsVisualizationAgent
@@ -387,41 +384,45 @@
                            rdfs:subClassOf :VisualizationAgent ,
                                            [ rdf:type owl:Restriction ;
                                              owl:onProperty :performs ;
-                                             owl:someValuesFrom <http://webprotege.stanford.edu/RCj5cmDtgZlRK4LjDz0aIfA>
+                                             owl:someValuesFrom :ResultsVisualization
                                            ] ;
-                           rdfs:label "ResultsVisualizationAgent"@en .
+                           rdfs:label "Results Visualization Agent" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/RunningDB
+:RunningDB rdf:type owl:Class ;
+           rdfs:subClassOf :WorkflowCondition ;
+           rdfs:label "Running Database" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/RunningKB
 :RunningKB rdf:type owl:Class ;
-           rdfs:subClassOf :WorkflowCondition ;
+           rdfs:subClassOf :RunningDB ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :associatedEntity ;
+                             owl:someValuesFrom :KB
+                           ] ;
            rdfs:label "Running Knowledge Base" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/RunningSimulationService
 :RunningSimulationService rdf:type owl:Class ;
-                          rdfs:subClassOf :WorkflowCondition ;
+                          rdfs:subClassOf :WorkflowCondition ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty :associatedEntity ;
+                                            owl:someValuesFrom :SimulationService
+                                          ] ;
                           rdfs:label "Running Simulation Service" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/SPARQLEndpoint
-:SPARQLEndpoint rdf:type owl:Class ;
-                rdfs:subClassOf :Endpoint .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/SPARQLQuery
-:SPARQLQuery rdf:type owl:Class ;
-             rdfs:subClassOf :Activity ,
-                             [ rdf:type owl:Restriction ;
-                               owl:onProperty :hasOutput ;
-                               owl:someValuesFrom :Data
-                             ] ,
-                             [ rdf:type owl:Restriction ;
-                               owl:onProperty :hasPrecondition ;
-                               owl:someValuesFrom :RunningKB
-                             ] ;
-             rdfs:comment "The activity of querying the Knowledge Base using SPARQL. A message with the content of the variables that need to be queried, as well as the SPARQL endpoint identifier of the Knowledge Base is required as input. Also the precondition of an existing SPARQL endpoint is essential. The activity ouputs the results of the query and may have an effect on the Knowledge Base if this is an update query." ;
-             rdfs:label "SPARQL Query" .
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/RunningVisualizationService
+:RunningVisualizationService rdf:type owl:Class ;
+                             rdfs:subClassOf :WorkflowCondition ,
+                                             [ rdf:type owl:Restriction ;
+                                               owl:onProperty :associatedEntity ;
+                                               owl:someValuesFrom :VisualizationService
+                                             ] ;
+                             rdfs:label "Running Visualization Service" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/SPARQLQueryAgent
@@ -429,15 +430,20 @@
                   rdfs:subClassOf :QueryAgent ,
                                   [ rdf:type owl:Restriction ;
                                     owl:onProperty :performs ;
-                                    owl:someValuesFrom :SPARQLQuery
+                                    owl:someValuesFrom :SPARQLQuerying
                                   ] ;
                   rdfs:label "SPARQL Query Agent" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/SPARQLResult
-:SPARQLResult rdf:type owl:Class ;
-              rdfs:subClassOf :RDF ;
-              rdfs:label "SPARQL Results Object" .
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/SPARQLQuerying
+:SPARQLQuerying rdf:type owl:Class ;
+                rdfs:subClassOf :Querying ,
+                                [ rdf:type owl:Restriction ;
+                                  owl:onProperty :hasPrecondition ;
+                                  owl:someValuesFrom :RunningKB
+                                ] ;
+                rdfs:comment "The Activity of querying the Knowledge Base using SPARQL. A message with the content of the variables that need to be queried, as well as the SPARQL endpoint of the Knowledge Base is required as input. Also there is the precondition that the Knowledge Base is in Running State." ;
+                rdfs:label "SPARQL Querying" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/ScenarioAccess
@@ -448,7 +454,11 @@
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/ScenarioConfigurationAgent
 :ScenarioConfigurationAgent rdf:type owl:Class ;
-                            rdfs:subClassOf :SoftwareAgent ,
+                            rdfs:subClassOf prov:SoftwareAgent ,
+                                            [ rdf:type owl:Restriction ;
+                                              owl:onProperty :employsAgent ;
+                                              owl:someValuesFrom :SPARQLQueryAgent
+                                            ] ,
                                             [ rdf:type owl:Restriction ;
                                               owl:onProperty :performs ;
                                               owl:someValuesFrom <http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/ScenarioConfiguration>
@@ -458,7 +468,7 @@
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/ScenarioExecutionAgent
 :ScenarioExecutionAgent rdf:type owl:Class ;
-                        rdfs:subClassOf :SoftwareAgent ;
+                        rdfs:subClassOf prov:SoftwareAgent ;
                         rdfs:label "Scenario Execution Agent" .
 
 
@@ -466,25 +476,18 @@
 :ScenarioFramework rdf:type owl:Class ;
                    rdfs:subClassOf :Service ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty :employsAgent ;
+                                     owl:onProperty :hostsSoftwareAgent ;
                                      owl:someValuesFrom :SPARQLQueryAgent
                                    ] ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty :employsAgent ;
+                                     owl:onProperty :hostsSoftwareAgent ;
                                      owl:someValuesFrom :ScenarioConfigurationAgent
                                    ] ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty :employsAgent ;
+                                     owl:onProperty :hostsSoftwareAgent ;
                                      owl:someValuesFrom :ScenarioExecutionAgent
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty :employsAgent ;
-                                     owl:someValuesFrom :TransformationFromRDFAgent
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty :employsAgent ;
-                                     owl:someValuesFrom :TransformationToRDFAgent
                                    ] ;
+                   rdfs:comment "A Service for What-if Analysis, where alternative scenarios can be configured, executed, and compared." ;
                    rdfs:label "Scenario Framework" .
 
 
@@ -504,27 +507,32 @@
                        rdfs:label "Scenario Results Stored" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/ScenarioSelection
-:ScenarioSelection rdf:type owl:Class ;
-                   rdfs:subClassOf :Activity ;
-                   rdfs:label "Scenario Selection" .
-
-
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/ScenarioSharing
 :ScenarioSharing rdf:type owl:Class ;
                  rdfs:subClassOf :WorkFlow ,
                                  [ rdf:type owl:Restriction ;
-                                   owl:onProperty :employsAgent ;
-                                   owl:someValuesFrom :SelectQuery
+                                   owl:onProperty :hasEffect ;
+                                   owl:someValuesFrom :ScenarioAccess
                                  ] ,
                                  [ rdf:type owl:Restriction ;
-                                   owl:onProperty :employsAgent ;
-                                   owl:someValuesFrom :UpdateQuery
+                                   owl:onProperty :hasPart ;
+                                   owl:someValuesFrom :SelectQuerying
                                  ] ,
                                  [ rdf:type owl:Restriction ;
-                                   owl:onProperty :hasInput ;
-                                   owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                   owl:onClass :User
+                                   owl:onProperty :hasPart ;
+                                   owl:someValuesFrom :UpdateQuerying
+                                 ] ,
+                                 [ rdf:type owl:Restriction ;
+                                   owl:onProperty :hasPart ;
+                                   owl:someValuesFrom :UserDBQuerying
+                                 ] ,
+                                 [ rdf:type owl:Restriction ;
+                                   owl:onProperty :hasPrecondition ;
+                                   owl:someValuesFrom :ExistingUser
+                                 ] ,
+                                 [ rdf:type owl:Restriction ;
+                                   owl:onProperty :hasPrecondition ;
+                                   owl:someValuesFrom :ScenarioAccess
                                  ] ;
                  rdfs:label "Scenario Sharing" .
 
@@ -537,11 +545,7 @@
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/ScenarioViewCreation
 :ScenarioViewCreation rdf:type owl:Class ;
-                      rdfs:subClassOf :Activity ,
-                                      [ rdf:type owl:Restriction ;
-                                        owl:onProperty :employsAgent ;
-                                        owl:someValuesFrom :UpdateQuery
-                                      ] ,
+                      rdfs:subClassOf prov:Activity ,
                                       [ rdf:type owl:Restriction ;
                                         owl:onProperty :hasPrecondition ;
                                         owl:someValuesFrom :ScenarioAccess
@@ -555,37 +559,52 @@
                     rdfs:label "Scenario View Update" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/SelectQuery
-:SelectQuery rdf:type owl:Class ;
-             rdfs:subClassOf :SPARQLQuery ;
-             rdfs:label "SELECT Query" .
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/SelectQuerying
+:SelectQuerying rdf:type owl:Class ;
+                rdfs:subClassOf :SPARQLQuerying ,
+                                [ rdf:type owl:Restriction ;
+                                  owl:onProperty :hasOutput ;
+                                  owl:someValuesFrom :Message
+                                ] ;
+                rdfs:comment "A SELECT SPARQL Query is the activity of connecting to the Knowledge Base and running a query that receives information from the Knowledge Graph. This information is the output of the Activity, which is of type Message to denote communication between two Services." ;
+                rdfs:label "SELECT Querying" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Service
 :Service rdf:type owl:Class ;
+         rdfs:subClassOf prov:Entity ,
+                         [ rdf:type owl:Restriction ;
+                           owl:onProperty :hasDescription ;
+                           owl:someValuesFrom xsd:string
+                         ] ,
+                         [ rdf:type owl:Restriction ;
+                           owl:onProperty :hasName ;
+                           owl:someValuesFrom xsd:string
+                         ] ;
+         rdfs:comment "A Service is a part of the DT's digital space that hosts a number of Software Agents. Following a microservice approach, each Service is autonomous and communicates with other Services through Messages." ;
          rdfs:label "Service" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/SimulationAPICall
-:SimulationAPICall rdf:type owl:Class ;
-                   rdfs:subClassOf :APICall ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty :hasOutput ;
-                                     owl:someValuesFrom :Data
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty :hasPrecondition ;
-                                     owl:someValuesFrom :RunningSimulationService
-                                   ] ;
-                   rdfs:label "Simulation API Call" .
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Simulation
+:Simulation rdf:type owl:Class ;
+            rdfs:subClassOf prov:Activity ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty :hasInput ;
+                              owl:someValuesFrom :Message
+                            ] ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty :hasOutput ;
+                              owl:someValuesFrom :Message
+                            ] ;
+            rdfs:label "Simulation" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/SimulationAgent
 :SimulationAgent rdf:type owl:Class ;
-                 rdfs:subClassOf :SoftwareAgent ,
+                 rdfs:subClassOf prov:SoftwareAgent ,
                                  [ rdf:type owl:Restriction ;
                                    owl:onProperty :performs ;
-                                   owl:someValuesFrom <http://webprotege.stanford.edu/RDt7C24tYJeqnMAEluerwq0>
+                                   owl:someValuesFrom :Simulation
                                  ] ;
                  rdfs:label "Simulation Agent" .
 
@@ -594,77 +613,55 @@
 :SimulationService rdf:type owl:Class ;
                    rdfs:subClassOf :Service ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty :employsAgent ;
+                                     owl:onProperty :hostsSoftwareAgent ;
                                      owl:someValuesFrom :SimulationAgent
                                    ] ;
+                   rdfs:comment "A service that uses a simulation model to simulate the behavior of a system within the digital twin." ;
                    rdfs:label "Simulation Service" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/SoftwareAgent
-:SoftwareAgent rdf:type owl:Class ;
-               rdfs:subClassOf :Agent ;
-               rdfs:label "Software Agent" .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/TransformationFromRDF
-:TransformationFromRDF rdf:type owl:Class ;
-                       rdfs:subClassOf :DataTransformation ;
-                       rdfs:label "Transformation From RDF" .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/TransformationFromRDFAgent
-:TransformationFromRDFAgent rdf:type owl:Class ;
-                            rdfs:subClassOf :DataTransformationAgent ,
-                                            [ rdf:type owl:Restriction ;
-                                              owl:onProperty :performs ;
-                                              owl:someValuesFrom :TransformationFromRDF
-                                            ] ;
-                            rdfs:label "Transformation From RDF Agent" .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/TransformationToRDF
-:TransformationToRDF rdf:type owl:Class ;
-                     rdfs:subClassOf :DataTransformation ;
-                     rdfs:comment "The activity of transforming data from some form to RDF, based on some ontology. This activity is part of the DataIngestion activity." ;
-                     rdfs:label "Transformation To RDF" .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/TransformationToRDFAgent
-:TransformationToRDFAgent rdf:type owl:Class ;
-                          rdfs:subClassOf :DataTransformationAgent ,
-                                          [ rdf:type owl:Restriction ;
-                                            owl:onProperty :performs ;
-                                            owl:someValuesFrom :TransformationToRDF
-                                          ] ;
-                          rdfs:label "Transformation To RDF Agent" .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Triples
-:Triples rdf:type owl:Class ;
-         rdfs:subClassOf :RDF ;
-         rdfs:label "Triples" .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/UpdateQuery
-:UpdateQuery rdf:type owl:Class ;
-             rdfs:subClassOf :SPARQLQuery ,
-                             [ rdf:type owl:Restriction ;
-                               owl:onProperty :hasEffect ;
-                               owl:someValuesFrom :KBUpdate
-                             ] ;
-             rdfs:label "UPDATE Query" .
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/UpdateQuerying
+:UpdateQuerying rdf:type owl:Class ;
+                rdfs:subClassOf :SPARQLQuerying ,
+                                [ rdf:type owl:Restriction ;
+                                  owl:onProperty :hasEffect ;
+                                  owl:someValuesFrom :KBUpdate
+                                ] ,
+                                [ rdf:type owl:Restriction ;
+                                  owl:onProperty :hasInput ;
+                                  owl:someValuesFrom :Data
+                                ] ;
+                rdfs:comment "A SPARQL UPDATE Query is the Activity of queyring the Knowledge Base in order to store new information to it. This new information is given to the Activity as Input and it is of type Message to denote communication between two Services. The Activity also has an effect on the Kowledge Base of type Knowledge Base Update, since the Knowledge Graph is updated with the new information." ;
+                rdfs:label "UPDATE Querying" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/User
 :User rdf:type owl:Class ;
-      rdfs:subClassOf :Person ;
+      rdfs:subClassOf prov:Person ;
       rdfs:label "User" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/UserAuthentication
+:UserAuthentication rdf:type owl:Class ;
+                    rdfs:subClassOf prov:Activity ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty :hasPrecondition ;
+                                      owl:someValuesFrom :ExistingUser
+                                    ] ;
+                    rdfs:label "User Authentication" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/UserDB
 :UserDB rdf:type owl:Class ;
         rdfs:subClassOf :DB ;
+        rdfs:comment "A Database for the user credentials, such as usernames and passwords. It is usually a relational DB, such as MYSQL, PostrgeSQL, or SQLite." ;
         rdfs:label "User DB" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/UserDBQuerying
+:UserDBQuerying rdf:type owl:Class ;
+                rdfs:subClassOf :Querying ;
+                rdfs:label "User DB Querying" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/UserDBUpdate
@@ -673,46 +670,63 @@
               rdfs:label "User DB Update" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/VisualizationAPICall
-:VisualizationAPICall rdf:type owl:Class ;
-                      rdfs:subClassOf :APICall ;
-                      rdfs:label "Visualization API Call" .
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/UserRegistration
+:UserRegistration rdf:type owl:Class ;
+                  rdfs:subClassOf prov:Activity ,
+                                  [ rdf:type owl:Restriction ;
+                                    owl:onProperty :hasEffect ;
+                                    owl:someValuesFrom :ExistingUser
+                                  ] ;
+                  rdfs:label "User Registration" .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/Visualization
+:Visualization rdf:type owl:Class ;
+               rdfs:subClassOf prov:Activity ,
+                               [ rdf:type owl:Restriction ;
+                                 owl:onProperty :hasInput ;
+                                 owl:someValuesFrom :Data
+                               ] ;
+               rdfs:label "Visualization" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/VisualizationAgent
 :VisualizationAgent rdf:type owl:Class ;
-                    rdfs:subClassOf :SoftwareAgent ,
+                    rdfs:subClassOf prov:SoftwareAgent ,
                                     [ rdf:type owl:Restriction ;
                                       owl:onProperty :performs ;
-                                      owl:someValuesFrom <http://webprotege.stanford.edu/RBaUFew4uq7ijun0mWHBdzv>
+                                      owl:someValuesFrom :Visualization
                                     ] ;
-                    rdfs:label "VisualizationAgent"@en .
+                    rdfs:label "Visualization Agent" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/VisualizationService
 :VisualizationService rdf:type owl:Class ;
                       rdfs:subClassOf :Service ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty :employsAgent ;
+                                        owl:onProperty :hostsSoftwareAgent ;
                                         owl:someValuesFrom :ResultsVisualizationAgent
                                       ] ;
+                      rdfs:comment "A Service that is used for the visualization of the simulation's results." ;
                       rdfs:label "Visualization Service" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/WorkFlow
 :WorkFlow rdf:type owl:Class ;
-          rdfs:subClassOf :Activity ,
+          rdfs:subClassOf prov:Activity ,
                           [ rdf:type owl:Restriction ;
                             owl:onProperty :hasPart ;
                             owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ;
-                            owl:onClass :Activity
+                            owl:onClass prov:Activity
                           ] ;
           rdfs:label "Workflow" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/WorkflowCondition
 :WorkflowCondition rdf:type owl:Class ;
-                   rdfs:label "Workflow Condition"@en .
+                   rdfs:subClassOf prov:Entity ;
+                   rdfs:comment "A Workflow Condition is a truth that could hold at any point through a Workflow, and it could work as a precondition or an effect of some Activity. It is used to link Activities within the Workflow using the hasEffect and hasPrecondition relations. For example, an Activity that hasPrecondition some Workflow Condition could occur after an Activity that hasEffect this Workflow Condition." ;
+                   rdfs:label "Workflow Condition" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/WorkflowScenario
@@ -730,6 +744,7 @@
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/Scenario
 <http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/Scenario> rdf:type owl:Class ;
+                                                                          rdfs:subClassOf prov:Entity ;
                                                                           rdfs:label "Scenario" .
 
 
@@ -737,16 +752,20 @@
 <http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/ScenarioConfiguration> rdf:type owl:Class ;
                                                                                        rdfs:subClassOf :WorkFlow ,
                                                                                                        [ rdf:type owl:Restriction ;
-                                                                                                         owl:onProperty :hasPart ;
-                                                                                                         owl:someValuesFrom :SelectQuery
+                                                                                                         owl:onProperty :hasEffect ;
+                                                                                                         owl:someValuesFrom :NotExecutedScenario
+                                                                                                       ] ,
+                                                                                                       [ rdf:type owl:Restriction ;
+                                                                                                         owl:onProperty :hasEffect ;
+                                                                                                         owl:someValuesFrom :ScenarioAccess
                                                                                                        ] ,
                                                                                                        [ rdf:type owl:Restriction ;
                                                                                                          owl:onProperty :hasPart ;
-                                                                                                         owl:someValuesFrom :TransformationToRDF
+                                                                                                         owl:someValuesFrom :SelectQuerying
                                                                                                        ] ,
                                                                                                        [ rdf:type owl:Restriction ;
                                                                                                          owl:onProperty :hasPart ;
-                                                                                                         owl:someValuesFrom :UpdateQuery
+                                                                                                         owl:someValuesFrom :UpdateQuerying
                                                                                                        ] ;
                                                                                        rdfs:label "Scenario Configuration" .
 
@@ -755,139 +774,116 @@
 <http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/ScenarioExecution> rdf:type owl:Class ;
                                                                                    rdfs:subClassOf :WorkFlow ,
                                                                                                    [ rdf:type owl:Restriction ;
-                                                                                                     owl:onProperty :employsAgent ;
-                                                                                                     owl:someValuesFrom <http://webprotege.stanford.edu/RCj5cmDtgZlRK4LjDz0aIfA>
+                                                                                                     owl:onProperty :hasPart ;
+                                                                                                     owl:someValuesFrom :ResultsVisualization
                                                                                                    ] ,
                                                                                                    [ rdf:type owl:Restriction ;
-                                                                                                     owl:onProperty :employsAgent ;
-                                                                                                     owl:someValuesFrom <http://webprotege.stanford.edu/RDt7C24tYJeqnMAEluerwq0>
-                                                                                                   ] ,
-                                                                                                   [ rdf:type owl:Restriction ;
-                                                                                                     owl:onProperty :employsAgent ;
+                                                                                                     owl:onProperty :hasPart ;
                                                                                                      owl:someValuesFrom :ScenarioViewCreation
                                                                                                    ] ,
                                                                                                    [ rdf:type owl:Restriction ;
-                                                                                                     owl:onProperty :employsAgent ;
-                                                                                                     owl:someValuesFrom :SelectQuery
+                                                                                                     owl:onProperty :hasPart ;
+                                                                                                     owl:someValuesFrom :SelectQuerying
                                                                                                    ] ,
                                                                                                    [ rdf:type owl:Restriction ;
-                                                                                                     owl:onProperty :employsAgent ;
-                                                                                                     owl:someValuesFrom :TransformationFromRDF
+                                                                                                     owl:onProperty :hasPart ;
+                                                                                                     owl:someValuesFrom :Simulation
                                                                                                    ] ,
                                                                                                    [ rdf:type owl:Restriction ;
-                                                                                                     owl:onProperty :employsAgent ;
-                                                                                                     owl:someValuesFrom :TransformationToRDF
+                                                                                                     owl:onProperty :hasPart ;
+                                                                                                     owl:someValuesFrom :UpdateQuerying
                                                                                                    ] ,
                                                                                                    [ rdf:type owl:Restriction ;
-                                                                                                     owl:onProperty :employsAgent ;
-                                                                                                     owl:someValuesFrom :UpdateQuery
+                                                                                                     owl:onProperty :hasPrecondition ;
+                                                                                                     owl:someValuesFrom :NotExecutedScenario
+                                                                                                   ] ,
+                                                                                                   [ rdf:type owl:Restriction ;
+                                                                                                     owl:onProperty :hasPrecondition ;
+                                                                                                     owl:someValuesFrom :ScenarioAccess
                                                                                                    ] ;
                                                                                    rdfs:label "Scenario Execution" .
 
 
-#################################################################
-#    Individuals
-#################################################################
+###  http://www.w3.org/ns/prov#Activity
+prov:Activity rdf:type owl:Class ;
+              rdfs:subClassOf [ rdf:type owl:Class ;
+                                owl:unionOf ( [ rdf:type owl:Restriction ;
+                                                owl:onProperty :hasEffect ;
+                                                owl:someValuesFrom :WorkflowCondition
+                                              ]
+                                              [ rdf:type owl:Restriction ;
+                                                owl:onProperty :hasInput ;
+                                                owl:someValuesFrom :Data
+                                              ]
+                                              [ rdf:type owl:Restriction ;
+                                                owl:onProperty :hasOutput ;
+                                                owl:someValuesFrom :Data
+                                              ]
+                                              [ rdf:type owl:Restriction ;
+                                                owl:onProperty :hasPrecondition ;
+                                                owl:someValuesFrom :WorkflowCondition
+                                              ]
+                                            )
+                              ] ;
+              rdfs:comment """An Activity is performed by an Agent and it must always have one of the following relations:
+- hasInput some Data
+- hasOutput some Data
+- hasPrecondition some Workflow Condition
+- hasEffect some Workflow Condition.
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/KBUpdate1
-:KBUpdate1 rdf:type owl:NamedIndividual ,
-                    :KBUpdate .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/RDFquads
-:RDFquads rdf:type owl:NamedIndividual ,
-                   :Quads .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/RunningTripleStore
-:RunningTripleStore rdf:type owl:NamedIndividual ,
-                             :RunningKB .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/SPARQLEndpoint
-:SPARQLEndpoint rdf:type owl:NamedIndividual ,
-                         :SPARQLEndpoint .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/classes
-:classes rdf:type owl:NamedIndividual ,
-                  :SPARQLResult .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/dataIngestionBasedOnOntology
-:dataIngestionBasedOnOntology rdf:type owl:NamedIndividual ,
-                                       :DataIngestion ;
-                              :hasEffect :KBUpdate1 ;
-                              :hasInput :SPARQLEndpoint ,
-                                        :filePath ;
-                              :hasPart :getOntologyClasses ,
-                                       :getOntologyProperties ,
-                                       :storeIngestionData ,
-                                       :transformIngestionDataToRDF ;
-                              :hasPrecondition :RunningTripleStore .
+This way the Activity can be associated with other Activities to form Workflows.""" ;
+              rdfs:label "Activity" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/filePath
-:filePath rdf:type owl:NamedIndividual ,
-                   :FilePath .
+###  http://www.w3.org/ns/prov#Agent
+prov:Agent rdf:type owl:Class ;
+           rdfs:subClassOf [ rdf:type owl:Restriction ;
+                             owl:onProperty :performs ;
+                             owl:someValuesFrom prov:Activity
+                           ] ;
+           rdfs:label "Agent" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/getOntologyClasses
-:getOntologyClasses rdf:type owl:NamedIndividual ,
-                             :SelectQuery ;
-                    :hasOutput :classes ;
-                    :hasPrecondition :RunningTripleStore .
+###  http://www.w3.org/ns/prov#Entity
+prov:Entity rdf:type owl:Class ;
+            rdfs:label "Entity" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/getOntologyProperties
-:getOntologyProperties rdf:type owl:NamedIndividual ,
-                                :SelectQuery ;
-                       :hasOutput :properties ;
-                       :hasPrecondition :RunningTripleStore .
+###  http://www.w3.org/ns/prov#Person
+prov:Person rdf:type owl:Class ;
+            rdfs:subClassOf prov:Agent ;
+            rdfs:label "Person" .
 
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/loadDataFromFile
-:loadDataFromFile rdf:type owl:NamedIndividual ,
-                           :Activity ;
-                  :hasInput :filePath ;
-                  :hasOutput :pd.DataFrame .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/pd.DataFrame
-:pd.DataFrame rdf:type owl:NamedIndividual ,
-                       :PandasDF .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/properties
-:properties rdf:type owl:NamedIndividual ,
-                     :SPARQLResult .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/storeIngestionData
-:storeIngestionData rdf:type owl:NamedIndividual ,
-                             :UpdateQuery ;
-                    :hasEffect :KBUpdate1 ;
-                    :hasInput :RDFquads ,
-                              :SPARQLEndpoint .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoFlow/transformIngestionDataToRDF
-:transformIngestionDataToRDF rdf:type owl:NamedIndividual ,
-                                      :TransformationToRDF ;
-                             :hasInput :SPARQLEndpoint ,
-                                       :classes ,
-                                       :filePath ,
-                                       :pd.DataFrame ,
-                                       :properties ;
-                             :hasOutput :RDFquads ;
-                             :hasPrecondition :RunningTripleStore .
+###  http://www.w3.org/ns/prov#SoftwareAgent
+prov:SoftwareAgent rdf:type owl:Class ;
+                   rdfs:subClassOf prov:Agent ;
+                   rdfs:label "Software Agent" .
 
 
 #################################################################
 #    Annotations
 #################################################################
 
-:SPARQLEndpoint rdfs:label "SPARQLEndpoint" .
+xsd:anyURI rdfs:label "URI" .
+
+
+xsd:boolean rdfs:label "boolean" .
+
+
+xsd:dateTime rdfs:label "date" .
+
+
+xsd:decimal rdfs:label "decimal" .
+
+
+xsd:float rdfs:label "float" .
+
+
+xsd:int rdfs:label "integer" .
+
+
+xsd:integer rdfs:label "integer" .
 
 
 ###  Generated by the OWL API (version 4.5.24.2023-01-14T21:28:32Z) https://github.com/owlcs/owlapi

@@ -19,7 +19,6 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -27,9 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-32v2w30lmx-yut1aa&)t#+4*787zz&&r=!jfy4op&kx1=mmx(-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 SITE_ID=1
 # Application definition
@@ -91,25 +90,28 @@ WSGI_APPLICATION = 'scenariodt.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DT_DATABASE_ENGINE', 'mysql.connector.django'),
-        'NAME': os.getenv('MYSQL_DATABASE', 'dtcloudthesis'),
-        'USER': os.getenv('MYSQL_USER', 'dtcloudthesis'),
-        'PASSWORD': os.getenv('MYSQL_PASSWORD', 'dtcloudthesis'),
-        'HOST': os.getenv('MYSQL_HOST', 'localhost'),
-        'PORT': 3306,
-        'OPTIONS': {
-            # Tell MySQLdb to connect with 'utf8mb4' character set
-            'charset': 'utf8mb4',
-        },
-        # Tell Django to build the test database with the 'utf8mb4' character set
-        'TEST': {
-            'CHARSET': 'utf8mb4',
-            'COLLATION': 'utf8mb4_unicode_ci',
+if 'RDS_DB_NAME' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.getenv('RDS_DB_NAME', 'user_db'),
+            'USER': os.getenv('RDS_USERNAME', 'dtcloudthesis'),
+            'PASSWORD': os.getenv('RDS_PASSWORD', 'dtcloudthesis'),
+            'HOST': os.getenv('RDS_HOSTNAME', 'user_db'),
+            'PORT': os.getenv('RDS_PORT', '5432'),
         }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DT_DATABASE_ENGINE', 'mysql.connector.django'),
+            'NAME': os.getenv('MYSQL_DATABASE', 'dtcloudthesis'),
+            'USER': os.getenv('MYSQL_USER', 'dtcloudthesis'),
+            'PASSWORD': os.getenv('MYSQL_PASSWORD', 'dtcloudthesis'),
+            'HOST': os.getenv('MYSQL_HOST', 'localhost'),
+            'PORT': '3306',
+        }
+    }
 
 
 # Password validation
@@ -153,10 +155,28 @@ USE_TZ = True
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "scenariodt/static")]
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / "scenariodt/public/static"
+S3 = os.getenv('S3') == 'True'
+
+if S3:
+    AWS_S3_REGION_NAME = 'eu-central-1'
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = 'scenario-dt-bucket'
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    # s3 static settings
+    AWS_LOCATION = 'static'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+else:
+    STATIC_URL = '/static/'
+    STATIC_ROOT = BASE_DIR / "scenariodt/public/static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+fuseki = os.getenv('SPARQL_ENDPOINT')
+CSRF_TRUSTED_ORIGINS = ['https://*.aws.com','http://127.0.0.1', 'http://localhost', 'http://localhost:8000', f'http://{fuseki}']

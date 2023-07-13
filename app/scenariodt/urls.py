@@ -34,6 +34,7 @@ urlpatterns = [
     path('reconfigure_scenario/', views.reconfigureScenario, name='reconfigure_scenario'),
     path('compare_scenarios/', views.compareScenarios, name='compare_scenarios'),
     path('share_scenario/', views.shareScenario, name='share_scenario'),
+    path('delete_scenario/', views.deleteScenario, name='delete_scenario'),
     path('execute_scenario/', views.executeScenario, name='execute_scenario'),
     path('knowledge_graph/', knowledgeGraph, name='knowledge_graph'),
     url('^django_plotly_dash/', include('django_plotly_dash.urls')),

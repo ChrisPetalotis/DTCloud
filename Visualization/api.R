@@ -2,7 +2,18 @@ options("rgdal_show_exportToProj4_warnings"="none")
 library(rgdal)
 library(ggplot2)
 library(sf)
-library(plumber)
+
+# Import
+ahn3_acqfile="Shapefiles/ahn3_measuretime.shp"
+ahn3_acq_sp = readOGR(dsn=ahn3_acqfile)
+ahn3_acq_sp_filt=ahn3_acq_sp[(ahn3_acq_sp@data$OBJECTID==5 | ahn3_acq_sp@data$OBJECTID==6 | ahn3_acq_sp@data$OBJECTID==11),]
+ahn3_acq_sp_filt = st_as_sf(ahn3_acq_sp_filt)
+
+
+#* @get /vishealth
+function() {
+  return('')
+}
 
 
 #' @post /plot 
@@ -25,23 +36,15 @@ function(df){
   mydata_clean= as(mydata_clean2, "data.frame")
   
   # Plot
-  #------------------------------------
-  # Import
-  ahn3_acqfile="Shapefiles/ahn3_measuretime.shp"
-  ahn3_acq_sp = readOGR(dsn=ahn3_acqfile)
-  ahn3_acq_sp_filt=ahn3_acq_sp[(ahn3_acq_sp@data$OBJECTID==5 | ahn3_acq_sp@data$OBJECTID==6 | ahn3_acq_sp@data$OBJECTID==11),]
-  #------------------------------------------------------------------
-  ahn3_acq_sp_filt = st_as_sf(ahn3_acq_sp_filt)
   b = ggplot(ahn3_acq_sp_filt) + geom_sf() + geom_point(data = mydata_clean, 
-                                                        aes(x = x, y = y, color = probability), size = 1, alpha = 0.5
-  ) + scale_color_gradient(low = "white", high = "red") + labs(
+    aes(x = x, y = y, color = probability), size = 1, alpha = 0.5
+    ) + scale_color_gradient(low = "red", high = "green") + labs(
     x = 'X', y = 'Y', title = 'Habitat Locations of Great Reed Warbler', 
-    subtitle = 'Alternative Scenario', caption = 'EPSG:28992') + theme_bw() + theme(
-      legend.position = c(0.17, 0.8), legend.background = element_rect(fill = 
-                                                                         "transparent"), plot.title = element_text(hjust = 0.5),
-      plot.subtitle = element_text(hjust = 0.5),
-      axis.title.y = element_text(angle = 0, vjust = 0.5))
+    subtitle = 'Presence Probability', caption = 'EPSG:28992') + theme_bw() + theme(
+    legend.position = c(0.17, 0.8), legend.background = element_rect(fill = 
+    "transparent"), plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    axis.title.y = element_text(angle = 0, vjust = 0.5))
   
   plot(b)
-  
 }

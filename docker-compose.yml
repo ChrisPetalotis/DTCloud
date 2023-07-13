@@ -1,0 +1,90 @@
+version: ‘3’
+
+services:
+  db:
+    container_name: user_db
+    image: mysql:8.0.33
+    environment:
+      - MYSQL_DATABASE=dtcloudthesis
+      - MYSQL_USER=dtcloudthesis
+      - MYSQL_PASSWORD=dtcloudthesis
+      - MYSQL_ROOT_PASSWORD=rootpassword
+    expose:
+      - 3306
+    ports:
+      - 3306:3306
+  sdm:
+    container_name: sdm
+    image: vasilis421/r-sdm-api:latest
+    expose:
+      - 80
+    ports:
+      - 8005:80
+
+  visualization:
+    container_name: visualization
+    image: vasilis421/r-vis-api:latest
+    expose:
+      - 80
+    ports:
+      - 8006:80
+
+  fuseki:
+    container_name: fuseki
+    image: secoresearch/fuseki:4.8.0
+    environment:
+      - ADMIN_PASSWORD=pw123
+      - ENABLE_DATA_WRITE=true
+      - ENABLE_UPDATE=true 
+      - ENABLE_UPLOAD=true 
+      - QUERY_TIMEOUT=60000
+    volumes:
+      - C:\Users\venge\Documents\CLS\Thesis\Project\DTCloudThesis\fuseki-data:/fuseki-base/databases
+      - C:\Users\venge\Documents\CLS\Thesis\Project\DTCloudThesis\fuseki-configuration:/fuseki-base/configuration
+    expose:
+      - 3030
+    ports:
+      - 3030:3030
+
+  scenario_dt:
+    container_name: scenario_dt
+    image: vasilis421/scenario_dt:latest
+    env_file:
+      - .env
+    environment:
+      - MYSQL_DATABASE=dtcloudthesis
+      - MYSQL_USER=dtcloudthesis
+      - MYSQL_PASSWORD=dtcloudthesis
+      - MYSQL_HOST=user_db
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=eu-central-1
+      - S3=False
+      - SPARQL_ENDPOINT=http://fuseki:3030/
+      - SDM_ENDPOINT=http://sdm:80/
+      - VIS_ENDPOINT=http://visualization:80/
+    command: sh -c "python manage.py makemigrations && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn scenariodt.wsgi:application --timeout 120 --bind 0.0.0.0:8000"
+    volumes:
+      - static_volume:/home/app/web/scenariodt/public/static/
+    expose:
+      - 8000
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+      - fuseki
+
+  nginx:
+    container_name: nginx
+    image: vasilis421/nginx:latest
+    ports:
+      - 80:80
+    links:
+      - scenario_dt
+    volumes:
+      - static_volume:/home/app/web/scenariodt/public/static/
+    depends_on:
+      - scenario_dt
+
+volumes:
+  static_volume:

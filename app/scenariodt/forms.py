@@ -32,8 +32,7 @@ class ScenarioSelectionForm(forms.Form):
         self.fields['scenario'].choices = options
 
 class ScenarioConfigForm(forms.Form):
-    scenario_condition = forms.CharField(max_length=100, label='Scenario Condition', 
-            help_text='Enter a condition for the scenario, e.g. "local wildfire".')
+    scenario_condition = forms.CharField(max_length=100, label='Scenario Condition')
     scenario_description = forms.CharField(max_length=500, label='Scenario Description', 
                                            widget=forms.Textarea)
     scenario_region = geoforms.MultiPolygonField(widget=LeafletWidget())
@@ -58,8 +57,7 @@ class ScenarioConfigForm(forms.Form):
         return cleaned_data
             
 class ScenarioReconfigForm(forms.Form):
-    scenario_condition = forms.CharField(max_length=100, label='Scenario Condition', 
-            help_text='Enter a condition for the scenario, e.g. "local wildfire".')
+    scenario_condition = forms.CharField(max_length=100, label='Scenario Condition')
     scenario_description = forms.CharField(max_length=500, label='Scenario Description', 
                                            widget=forms.Textarea)
     

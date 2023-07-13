@@ -1,0 +1,24 @@
+FROM python:{{ pythonVersion }}-slim-buster
+
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        gcc \
+        build-essential \
+        default-libmysqlclient-dev \
+        binutils \
+        libproj-dev \
+        gdal-bin \
+        python-gdal \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
+
+ENV HOME={{home}}
+ENV APP_HOME={{appHome}}
+
+COPY requirements.txt $APP_HOME
+WORKDIR $APP_HOME
+
+# Install Python dependencies
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt

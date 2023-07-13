@@ -2,46 +2,58 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
-
 <div class="mainText">
     <h2 style="color: gainsboro;">A Digital Ecosystem</h2>
 
 </div>
 
-<div style="margin-top: 2%;">
-    <div class="mainMenu">
-        <a class="buttonMain" href="{% url 'knowledge_graph' %}">Knowledge Graph</a>
-    </div>
-    <br><br>
-    <div class="mainMenu">
-        <a class="buttonMain" href="{% url 'configure_scenario' %}">Configure Scenario</a>
-    </div>
-    <br><br>
-    <div class="mainMenu">
-        <a class="buttonMain" href="{% url 'execute_scenario' %}">Execute Scenario</a>
-    </div>
-    <br><br>
-    <div class="mainMenu">
-        <a class="buttonMain" href="{% url 'compare_scenarios' %}">Compare Scenarios</a>
-    </div>
-    <br><br>
-    <div class="mainMenu">
-        <a class="buttonMain" href="{% url 'share_scenario' %}">Share Scenario</a>
+{% if user.is_authenticated %}
+{% load static %}
+
+
+<div class="justify-content-center align-items-center" style="margin-top: 1%">
+    <div class="row justify-content-center align-items-center" style="margin-right: 5%;">
+        
+        <img src="{%static 'img/baseScenario.png' %}" alt="ScenarioResults">
+        
+        <div style="width: 450px;">
+            <div class="mainMenu">
+                <a class="buttonMain" href="{% url 'knowledge_graph' %}">Knowledge Graph</a>
+            </div>
+            <br><br>
+            <div class="mainMenu">
+                <a class="buttonMain" href="{% url 'configure_scenario' %}">Configure Scenario</a>
+            </div>
+            <br><br>
+            <div class="mainMenu">
+                <a class="buttonMain" href="{% url 'execute_scenario' %}">Execute Scenario</a>
+            </div>
+            <br><br>
+            <div class="mainMenu">
+                <a class="buttonMain" href="{% url 'compare_scenarios' %}">Compare Scenarios</a>
+            </div>
+            <br><br>
+            <div class="mainMenu">
+                <a class="buttonMain" href="{% url 'share_scenario' %}">Share Scenario</a>
+            </div>
+            <br><br>
+            <div class="mainMenu">
+                <a class="buttonMain" href="{% url 'delete_scenario' %}">Delete Scenario</a>
+            </div>
+        </div>
     </div>
 </div>
+
+
 
 {% else %}
 
-<div class="mainText">
-    <p style="color: gainsboro;">Main Page</p>
-
-</div>
-<div style="margin-top: 8%;">
-<br><br>
-    <div class="mainMenu">
-        <a href="{% url 'login' %}" class="buttonMain">Login</a>
-
+<div class="d-flex justify-content-center align-items-center">
+    <div class="justify-content-center align-items-center" style="width: 20%; margin-top: 8%">
+        <br><br>
+        <div class="mainMenu">
+            <a href="{% url 'login' %}" class="buttonMain">Login</a>
+        </div>
     </div>
 </div>
 

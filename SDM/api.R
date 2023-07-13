@@ -1,12 +1,15 @@
 library(sdm)
 library(dismo)
-library(plumber)
 
+m_merged_GrW=read.sdm("merged_GrW_all2.sdm")
 
+#* @get /sdmhealth
+function() {
+  return('')
+}
 
 #' @post /predictions 
 function(df){
-  
   data = df
   column_list <- list()
   for (inner_list in data) {
@@ -18,8 +21,6 @@ function(df){
   # Set the column names
   colnames(presabs) <- names(data)
   
-  m_merged_GrW=read.sdm("merged_GrW_all2.sdm")
-  
   mydata_clean2=presabs
   coordinates(mydata_clean2)=~x+y
   proj4string(mydata_clean2)<- CRS("+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +no_defs")
@@ -29,7 +30,7 @@ function(df){
   mydata_clean <- subset(mydata_clean, select = -x)
   mydata_clean <- subset(mydata_clean, select = -y)
   predictions <- predict(m_merged_GrW, mydata_clean, mean=TRUE)
-  predictions
+  return(predictions)
 }
 
 

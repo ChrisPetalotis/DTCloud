@@ -1,0 +1,62 @@
+version: ‘3’
+
+services:
+  db:
+    container_name: {{ dbContainerName }}
+    image: {{ mysqlImage }}
+    environment:
+      MYSQL_DATABASE: {{ mysqlDatabase }}
+      MYSQL_USER: {{ mysqlUser }}
+      MYSQL_PASSWORD: {{ mysqlPassword }}
+      MYSQL_ROOT_PASSWORD: rootpassword
+    expose:
+      - 3306
+    ports:
+      - {{ mysqlPort }}:3306
+  sdm:
+    container_name: {{ sdmContainerName }}
+    image: {{ sdmImageName }}
+    expose:
+      - 80
+    ports:
+      - {{ sdmPort }}:80
+
+  visualization:
+    container_name: {{ visContainerName }}
+    image: {{ visImageName }}
+    expose:
+      - 80
+    ports:
+      - {{ visPort }}:80
+
+  fuseki:
+    container_name: {{ fusekiContainerName }}
+    image: {{ fusekiImage }}
+    environment:
+      - ADMIN_PASSWORD={{ fusekiAdminPassword }}
+      - ENABLE_DATA_WRITE=true
+      - ENABLE_UPDATE=true 
+      - ENABLE_UPLOAD=true 
+      - QUERY_TIMEOUT={{ fusekiQueryTimeout }}
+    volumes:
+      - {{ fusekiDataPath }}:/fuseki-base/databases
+      - {{ fusekiConfigPath }}:/fuseki-base/configuration
+    expose:
+      - 3030
+    ports:
+      - 3030:3030
+
+  scenario_dt:
+    container_name: {{ djangoContainerName }}
+    image: {{ djangoImageName }}
+    environment:
+      - {{ dbHostEnvVar }}={{ dbContainerName }}
+    volumes:
+      - {{ djangoSourceCodePath }}:/home/app/web
+    command: sh -c "python /home/app/web/manage.py collectstatic --noinput && python /home/app/web/manage.py makemigrations && python /home/app/web/manage.py migrate && python /home/app/web/manage.py runserver 0.0.0.0:{{ djangoPort }}"
+    expose:
+      - 8000
+    ports:
+      - {{ djangoPort }}:8000
+    depends_on:
+      {{ djangoDependencies| indent(6) }}

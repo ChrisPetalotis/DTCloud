@@ -16,6 +16,7 @@ import pandas as pd
 import requests
 import json
 import base64
+import os
 
 import dash_cytoscape as cyto
 from dash import html, dcc
@@ -49,12 +50,12 @@ ro_ = {'has characteristic':'0000053', 'contained in':'0001018', 'has habitat':'
 ecso_ = {'ndvi':'00010076'}
 snomed = {'great reed warbler':'49532004', 'occurrence':'246454002'}
 
-endpoint_update = "http://fuseki:3030/ds/update"
-endpoint_query = "http://fuseki:3030/ds/sparql"
-endpoint = "http://fuseki:3030/ds/"
+endpoint = os.getenv('SPARQL_ENDPOINT', "http://fuseki:3030/") + "ds/"
+endpoint_update = endpoint + "update"
+endpoint_query = endpoint + "sparql"
 
-SDM_endpoint = 'http://sdm:80/'
-vis_endpoint = 'http://visualization:80/'
+SDM_endpoint = os.getenv('SDM_ENDPOINT', 'http://sdm:80/')
+vis_endpoint = os.getenv('VIS_ENDPOINT', 'http://visualization:80/')
 
 def main(request):
     ''' Shows home / main page.'''
@@ -103,7 +104,6 @@ def configureNewScenario(request):
     ds.open((endpoint_query, endpoint_update))
     sparql = """
           PREFIX myapp: <http://www.myapp.org/>
-          PREFIX sio: <http://semanticscience.org/resource/SIO_>
           PREFIX ssn: <http://www.w3.org/ns/ssn/>
           PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
           PREFIX envo: <http://purl.obolibrary.org/obo/ENVO_>
@@ -113,7 +113,8 @@ def configureNewScenario(request):
                 ?m rdfs:subClassOf* ssn:Property ;
                    rdfs:label ?lab1 .
                 FILTER NOT EXISTS {?s rdfs:subClassOf ?m}
-              }}
+              }
+              }
               UNION
               {GRAPH myapp:ecosystem {
                 ?l a ?landcover .
@@ -123,11 +124,9 @@ def configureNewScenario(request):
                 ?landcover rdfs:subClassOf* envo:00000043 ;
                            rdfs:label ?lab2 .
                 FILTER NOT EXISTS {?o rdfs:subClassOf ?landcover}
-              }}
-              
-          }
-
-          """
+              }
+              } 
+          }"""
     results = ds.query(sparql)
     options = []
     for row in results:
@@ -446,8 +445,8 @@ def executeScenario(request):
             messages.add_message(request, messages.INFO, "Results were saved to scenario view.")
             results_df = retrieveScenarioResults(ds, scenario_name)
             img_url = getResultsVisualization(results_df, vis_endpoint)
-            img_urls = [static('img/baseScenario.png')]
-            img_urls.append(img_url)
+            img_urls = {static('img/baseScenario.png'): 'Base Scenario'}
+            img_urls[img_url] = scenario_name
 
             # Add scenario execution to graph
             scenario_graph = ds.graph(URIRef("http://www.myapp.org/scenario"))
@@ -785,12 +784,12 @@ def compareScenarios(request):
         form = ScenarioComparisonForm(scenarios, request.POST)
         if form.is_valid():
             scenarios = form.cleaned_data['scenarios']
-            img_urls = []
+            img_urls = {static('img/baseScenario.png'): "Base Scenario"}
             for scenario in scenarios:
                 scenario_name = scenario.split("/")[-1].rsplit("_", 1)[0]
                 df = retrieveScenarioResults(ds, scenario_name)
                 img_url = getResultsVisualization(df, vis_endpoint)
-                img_urls.append(img_url)
+                img_urls[img_url] = scenario_name
             
             return render(request, "plot.html", {'scenario_img_urls': img_urls})
     else:
@@ -893,40 +892,34 @@ def knowledgeGraph(request):
                 PREFIX owl: <http://www.w3.org/2002/07/owl#>
                 PREFIX myapp: <http://www.myapp.org/>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-                SELECT DISTINCT ?class ?objectProperty ?class2 ?l1 ?l2 ?l3 ?subclass ?l4
-                WHERE { 
-                        {
-                            GRAPH myapp:ontology {
-                                ?class a owl:Class .
-                                ?objectProperty rdf:type owl:ObjectProperty .
-                                ?objectProperty rdfs:domain ?class .
-                                ?objectProperty rdfs:range ?class2 .
-                            }
-                            OPTIONAL {
-                                GRAPH myapp:ontology 
-                                {
-                                    ?class rdfs:label ?l1 .
-                                    ?objectProperty rdfs:label ?l2 .
-                                    ?class2 rdfs:label ?l3 .
-                                } 
-                            } 
-                        }
-                        UNION
-                        {
-                            GRAPH myapp:ontology {
-                                ?subclass rdfs:subClassOf ?class .
-                            }
-                            OPTIONAL {
-                                GRAPH myapp:ontology {
-                                    ?class rdfs:label ?l1 .
-                                    ?subclass rdfs:label ?l4 .
-                                } 
-                            }
-                        }
-                    FILTER ((!isBlank(?class))) 
-                }
-            """
+                SELECT DISTINCT ?domain ?property ?range ?l1 ?l2 ?l3
+                WHERE {{
+                {{
+                    {{
+                        GRAPH myapp:ontology {{
+                            ?domain a owl:Class .
+                            ?domain rdfs:subClassOf* ?res .
+                            ?res a owl:Restriction ;
+                                owl:onProperty ?property ;
+                                ?p2 ?range .
+                            ?range a owl:Class .
+                        }}
+                    }}
+                    UNION
+                    {{
+                        GRAPH myapp:ontology {{
+                            ?domain a owl:Class .
+                            ?domain rdfs:subClassOf* ?res .
+                            ?res a owl:Restriction ;
+                                owl:onProperty ?property ;
+                                owl:someValuesFrom ?range .
+                        }}
+                    }}
+                    OPTIONAL {{ ?domain rdfs:label ?l1 . }}
+                    OPTIONAL {{ ?property rdfs:label ?l2 . }}
+                    OPTIONAL {{ ?range rdfs:label ?l3 . }}   
+                }}
+            }}"""
     results =ds.query(sparql)
     for row in results:
         if row[1] != None:
@@ -936,20 +929,41 @@ def knowledgeGraph(request):
             elements.append({'data': data})
             data = {'source': row[0].n3(ds.namespace_manager), 'target': row[2].n3(ds.namespace_manager), 'label': row[4]}
             elements.append({'data': data})
-        else:
-            data = {'id': row[0].n3(ds.namespace_manager), 'label': row[3]}
-            elements.append({'data': data})
-            data = {'id': row[6].n3(ds.namespace_manager), 'label': row[7]}
-            elements.append({'data': data})
-            data = {'source': row[6].n3(ds.namespace_manager), 'target': row[0].n3(ds.namespace_manager), 'label': 'rdfs:subClassOf'}
-            elements.append({'data': data})
+    sparql = """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX owl: <http://www.w3.org/2002/07/owl#>
+                PREFIX myapp: <http://www.myapp.org/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT DISTINCT ?domain ?range ?l1 ?l2
+                WHERE {{
+                {{
+                    
+                        GRAPH myapp:ontology {{
+                            ?domain rdfs:subClassOf ?range .
+                            ?domain a owl:Class .
+                            ?range a owl:Class .
+                        }}
+                    
+                    OPTIONAL {{ ?domain rdfs:label ?l1 . }}
+                    OPTIONAL {{ ?range rdfs:label ?l2 . }}  
+                }}
+                FILTER (!isBlank(?range))
+                FILTER (!isBlank(?domain))
+            }}"""
+    results =ds.query(sparql)
+    for row in results:
+        data = {'id': row[0].n3(ds.namespace_manager), 'label': row[2]}
+        elements.append({'data': data})
+        data = {'id': row[1].n3(ds.namespace_manager), 'label': row[3]}
+        elements.append({'data': data})
+        data = {'source': row[0].n3(ds.namespace_manager), 'target': row[1].n3(ds.namespace_manager), 'label': 'rdfs:subClassOf'}
+        elements.append({'data': data})
 
 
     cytoscape_style = [
         {
             'selector': 'node',
             'style': {
-                'background-color': '#ffffff',
+                'background-color': '#D3D3D3',
                 'label': 'data(label)',
                 'shape': 'roundrectangle',
                 'width': 'label',
@@ -958,7 +972,7 @@ def knowledgeGraph(request):
                 'font-size': '15px',
                 'text-valign': 'center',
                 'text-halign': 'center',
-                'text-outline-color': '#008080',
+                'text-outline-color': '#967bb6',
                 'text-outline-width': '1px'
             }
         },
@@ -967,24 +981,24 @@ def knowledgeGraph(request):
             'style': {
                 'curve-style': 'bezier',
                 'target-arrow-shape': 'triangle',
-                'target-arrow-color': '#000000',
-                'line-color': '#000000',
+                'target-arrow-color': '#967bb6',
+                'line-color': '#967bb6',
                 'width': 2,
                 'arrow-scale': 1,
                 'opacity': 1,
                 'label': 'data(label)',
                 'font-size': '10px',
-                'text-outline-color': '#fff000',
+                'text-outline-color': '#D3D3D3',
                 'text-outline-width': '1px'
             }
         },
         {
             'selector': ':selected',
             'style': {
-                'background-color': '#ffa500',
-                'line-color': '#ffa500',
-                'target-arrow-color': '#ffa500',
-                'source-arrow-color': '#ffa500',
+                'background-color': '#517593',
+                'line-color': '#517593',
+                'target-arrow-color': '#517593',
+                'source-arrow-color': '#517593',
                 'opacity': 1
             }
         },
@@ -1037,7 +1051,7 @@ def knowledgeGraph(request):
         Input('node_id', 'value')
     )
     def update_graph(node_id):
-        
+        filter_clause = f'FILTER (regex(str(?domain), "{node_id}$", "i") || regex(str(?property), "{node_id}", "i") || regex(str(?range), "{node_id}$", "i"))'
         if not node_id:
             # If no node ID is entered, return the full graph data
             return elements
@@ -1046,40 +1060,35 @@ def knowledgeGraph(request):
                 PREFIX owl: <http://www.w3.org/2002/07/owl#>
                 PREFIX myapp: <http://www.myapp.org/>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-                SELECT DISTINCT ?class ?objectProperty ?class2 ?l1 ?l2 ?l3 ?subclass ?l4
-                WHERE {{ 
-                        {{
-                            GRAPH myapp:ontology {{
-                                ?class a owl:Class .
-                                ?objectProperty rdf:type owl:ObjectProperty .
-                                ?objectProperty rdfs:domain ?class .
-                                ?objectProperty rdfs:range ?class2 .
-                            }}
-                            OPTIONAL {{
-                                GRAPH myapp:ontology 
-                                {{
-                                    ?class rdfs:label ?l1 .
-                                    ?objectProperty rdfs:label ?l2 .
-                                    ?class2 rdfs:label ?l3 .
-                                }} 
-                            }} 
+                SELECT DISTINCT ?domain ?property ?range ?l1 ?l2 ?l3
+                WHERE {{
+                {{
+                    {{
+                        GRAPH myapp:ontology {{
+                            ?domain a owl:Class .
+                            ?domain rdfs:subClassOf* ?res .
+                            ?res a owl:Restriction ;
+                                owl:onProperty ?property ;
+                                ?p2 ?range .
+                            ?range a owl:Class .
                         }}
-                        UNION
-                        {{
-                            GRAPH myapp:ontology {{
-                                ?subclass rdfs:subClassOf ?class .
-                            }}
-                            OPTIONAL {{
-                                GRAPH myapp:ontology {{
-                                    ?class rdfs:label ?l1 .
-                                    ?subclass rdfs:label ?l4 .
-                                }} 
-                            }}
+                    }}
+                    UNION
+                    {{
+                        GRAPH myapp:ontology {{
+                            ?domain a owl:Class .
+                            ?domain rdfs:subClassOf* ?res .
+                            ?res a owl:Restriction ;
+                                owl:onProperty ?property ;
+                                owl:someValuesFrom ?range .
                         }}
-                    FILTER(CONTAINS(lcase(str(?class)), lcase("{node_id}")) || CONTAINS(lcase(str(?class2)), lcase("{node_id}")) || CONTAINS(lcase(str(?subclass)), lcase("{node_id}")))
+                    }}
+                    OPTIONAL {{ ?domain rdfs:label ?l1 . }}
+                    OPTIONAL {{ ?property rdfs:label ?l2 . }}
+                    OPTIONAL {{ ?range rdfs:label ?l3 . }}   
                 }}
-            """.format(node_id=node_id)
+                {filter}
+            }}""".format(filter=filter_clause)
         results =ds.query(sparql)
         for row in results:
             if row[1] != None:
@@ -1089,17 +1098,97 @@ def knowledgeGraph(request):
                 new_elements.append({'data': data})
                 data = {'source': row[0].n3(ds.namespace_manager), 'target': row[2].n3(ds.namespace_manager), 'label': row[4]}
                 new_elements.append({'data': data})
-            else:
-                data = {'id': row[0].n3(ds.namespace_manager), 'label': row[3]}
-                new_elements.append({'data': data})
-                data = {'id': row[6].n3(ds.namespace_manager), 'label': row[7]}
-                new_elements.append({'data': data})
-                data = {'source': row[6].n3(ds.namespace_manager), 'target': row[0].n3(ds.namespace_manager), 'label': 'rdfs:subClassOf'}
-                new_elements.append({'data': data})
+        sparql = """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX owl: <http://www.w3.org/2002/07/owl#>
+                PREFIX myapp: <http://www.myapp.org/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT DISTINCT ?domain ?range ?l1 ?l2
+                WHERE {{
+                {{
+                    
+                        GRAPH myapp:ontology {{
+                            ?domain rdfs:subClassOf ?range .
+                            ?domain a owl:Class .
+                            ?range a owl:Class .
+                        }}
+                    
+                    OPTIONAL {{ ?domain rdfs:label ?l1 . }}
+                    OPTIONAL {{ ?range rdfs:label ?l2 . }}  
+                }}
+                FILTER (!isBlank(?range))
+                FILTER (!isBlank(?domain))
+                {filter}
+            }}""".format(filter=filter_clause)
+        results =ds.query(sparql)
+        for row in results:
+            data = {'id': row[0].n3(ds.namespace_manager), 'label': row[2]}
+            new_elements.append({'data': data})
+            data = {'id': row[1].n3(ds.namespace_manager), 'label': row[3]}
+            new_elements.append({'data': data})
+            data = {'source': row[0].n3(ds.namespace_manager), 'target': row[1].n3(ds.namespace_manager), 'label': 'rdfs:subClassOf'}
+            new_elements.append({'data': data})
             
         if len(new_elements) > 0:
             return new_elements
         else:
             return elements
-    
+    """fuseki_endpoint = os.getenv("SPARQL_ENDPOINT", "http://localhost:3030/")
+    context = {
+        "sparql_endpoint": fuseki_endpoint
+    }"""
     return render(request, 'ontology.html')
+
+def deleteScenario(request):
+    '''Delete scenario view'''
+    # Check if authenticated
+    if not request.user.is_authenticated:
+        return HttpResponse("Unauthenticated")
+    
+    ds = Dataset("SPARQLUpdateStore")
+    ds.open((endpoint_query, endpoint_update))
+    sparql = """
+                PREFIX myapp: <http://www.myapp.org/>
+                PREFIX prov: <http://www.w3.org/ns/prov#>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX ontoScenario: <http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/>
+                SELECT DISTINCT ?scenario ?name
+                WHERE 
+                {{
+                    {{
+                        GRAPH myapp:scenario 
+                        {{
+                        ?scenario rdfs:label ?name ;
+                            prov:wasAttributedTo myapp:user_{user} .
+                        }}
+                    }}
+                    UNION
+                    {{
+                        GRAPH myapp:scenario 
+                        {{
+                        ?scenario rdfs:label ?name .
+                        myapp:user_{user} ontoScenario:hasAccess ?scenario .
+                        }}
+                    }}
+                }}""".format(user=str(request.user.id))
+    results = ds.query(sparql)
+    
+    options=[]
+    for row in results:
+        options.append((row[0], row[1]))
+
+    if request.method == 'POST':
+        form = ScenarioSelectionForm(options, request.POST)
+        if form.is_valid():
+            scenario = request.POST['scenario']
+            scenario = scenario.rsplit('_', 1)[0]
+            ds.remove_graph(ds.get_context(URIRef(scenario)))
+            graph = ds.get_context(MYAPP.scenario)
+            for s, p, o in graph.triples((None, None, None)):
+                if scenario.split('/')[-1] in str(s):
+                    graph.remove((s, p, o))
+            messages.add_message(request, messages.INFO, "Scenario deleted successfully!")
+            return redirect('main')
+    else:
+        form = ScenarioSelectionForm(options)
+
+    return render(request, 'delete_scenario.html', {'deleteform': form})
