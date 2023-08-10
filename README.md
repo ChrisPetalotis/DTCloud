@@ -4,11 +4,9 @@
 
 The 'app' folder includes the Django project for EcoDTwin, a What-if Analysis DT service, where users can configure, execute, compare, and share scenarios.
 
-The 'SDM' folder includes the R code (based on https://github.com/komazsofi/LiDAR_Sentinel_birdsdm_wetlands) for the Simulation service, which is developed a an plumber API.
-
-The 'Visualization' folder includes the R code for the Visualization service, which is developed as a plumber API.
-
 The 'nginx' folder includes the configuration of the nginx web-server, which servers the django static files.
+
+The 'SDM' and 'Visualization' folders include R code (based on https://github.com/komazsofi/LiDAR_Sentinel_birdsdm_wetlands) for the Simulation and Visualization services, developed as plumber APIs.
 
 Every service is containerized, with its own custom Dockerfile or existing Docker image. The docker-compose.yml can be used to run the stack locally, including the django container, the nginx container, the simulation and visualization containers, the Apache Jena-Fuseki container (Knowledge Base), and a mysql user db container.
 
