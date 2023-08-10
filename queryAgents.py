@@ -57,13 +57,15 @@ def getOntologyProperties(endpoint :SPARQLEndpoint, filters :list = [], filterTy
                 SELECT DISTINCT ?domain ?property ?range ?l1 ?l2 ?l3
                 WHERE {{
                 {{
-                    ?range rdfs:subClassOf* ?parent2 .
-                    ?property rdfs:range ?parent2 .
-                    OPTIONAL {{ ?property rdfs:domain ?domain .
-                        OPTIONAL {{ ?domain rdfs:label ?l1 . }}
+                    GRAPH myapp:ontology {{
+                        ?range rdfs:subClassOf* ?parent2 .
+                        ?property rdfs:range ?parent2 .
+                        OPTIONAL {{ ?property rdfs:domain ?domain .
+                            OPTIONAL {{ ?domain rdfs:label ?l1 . }}
+                        }}
+                        OPTIONAL {{ ?property rdfs:label ?l2 . }}
+                        OPTIONAL {{ ?range rdfs:label ?l3 . }}
                     }}
-                    OPTIONAL {{ ?property rdfs:label ?l2 . }}
-                    OPTIONAL {{ ?range rdfs:label ?l3 . }} 
                 }}
                 UNION
                 {{
@@ -91,6 +93,29 @@ def getOntologyProperties(endpoint :SPARQLEndpoint, filters :list = [], filterTy
                     OPTIONAL {{ ?property rdfs:label ?l2 . }}
                     OPTIONAL {{ ?range rdfs:label ?l3 . }}   
                 }}
+                {filter} 
+            }}""".format(filter=filter_clause)
+    results = ds.query(sparql)
+    return results
+
+def getScenarioProperties(endpoint :SPARQLEndpoint, filters :list = [], filterType :str = 'property') -> SPARQLResult:
+    from rdflib import Dataset
+    ds = Dataset('SPARQLUpdateStore')
+    ds.open((endpoint + 'sparql', endpoint + 'update'))
+
+    filter_clause = " || ".join([f'regex(str(?{filterType}), "{filter}", "i")' for filter in filters])
+    filter_clause = f'FILTER ({filter_clause})' if filter_clause else ''
+    
+    sparql = """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX owl: <http://www.w3.org/2002/07/owl#>
+                PREFIX myapp: <http://www.myapp.org/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT DISTINCT ?property ?l
+                WHERE {{
+                    GRAPH myapp:scenario{{
+                        ?domain ?property ?range .
+                    }}
+                    OPTIONAL {{ ?property rdfs:label ?l . }}
                 {filter} 
             }}""".format(filter=filter_clause)
     results = ds.query(sparql)

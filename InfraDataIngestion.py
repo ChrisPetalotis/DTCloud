@@ -25,7 +25,6 @@ def ingestAttributeToOntology(output_data, resourceType, resourceName, attribute
             if attr == 'type':
                 cls = ma.mapColumnToClass(value, infraClasses, False, True)
                 quads.append((MYAPP[resource], RDF.type, URIRef(cls), infraGraph))
-                #print(resource + ' -> ' + cls)
                 if cls.endswith('Forward'):
                     handleStringAttribute(infraGraph, resource, ontoDeploy.targetGroup, attributes['target_group_arn'])
             elif prop != None:
@@ -48,22 +47,17 @@ def ingestAttributeToOntology(output_data, resourceType, resourceName, attribute
                     cls = ma.mapColumnToClass(attr, infraClasses, False, True)
                     if cls.endswith('PathPattern'):
                         quads.append((MYAPP[resource], RDF.type, URIRef(cls), infraGraph))
-                        #print(resource + ' -> ' + cls)
-                        #print(resource + ' -> has Value -> ' + v['values'][0])
                         quads.append((MYAPP[resource], ontoDeploy.hasValue, Literal(v['values'][0], datatype=XSD.string), infraGraph))
                     elif cls.endswith('TargetTrackingPolicy'):
                         quads.append((MYAPP[resource], RDF.type, URIRef(cls), infraGraph))
-                        #print(resource + ' -> ' + cls)
                         newProps = qa.getOntologyProperties(endpoint, [cls+"$"], 'domain')
                         ingestAttributeToOntology(output_data, resourceType, resourceName, v, infraClasses, newProps, infraGraph)
                     else:
                         if cls.endswith('LoadBalancer') and resourceType == 'aws_ecs_service':
                             cls = ontoDeploy.ECSServiceLBConfig
                         quads.append((MYAPP[resourceName+"."+attr+'_'+str(i)], RDF.type, URIRef(cls), infraGraph))
-                        #print(resourceName+"."+attr+'_'+str(i) + ' -> ' + cls)
                         prop = ma.mapInputToProperty(attr, infraProps, False, True)
                         if prop != None:
-                            #print(resource + ' -> ' + str(prop) + ' -> ' + resourceName+"."+attr+'_'+str(i))
                             quads.append((MYAPP[resource], URIRef(prop), MYAPP[resourceName+"."+attr+'_'+str(i)], infraGraph))
                             newProps = qa.getOntologyProperties(endpoint, [cls+"$"], 'domain')
                             ingestAttributeToOntology(output_data, resourceName, attr+'_'+str(i), v, infraClasses, newProps, infraGraph)
@@ -75,38 +69,27 @@ def ingestAttributeToOntology(output_data, resourceType, resourceName, attribute
                     quads.append((MYAPP[resourceName+"."+attr+'_var_'+varName], RDF.type, ontoDeploy.Variable, infraGraph))
                     quads.append((MYAPP[resourceName+"."+attr+'_var_'+varName], ontoDeploy.hasName, Literal(varName, datatype=XSD.string), infraGraph))
                     quads.append((MYAPP[resourceName+"."+attr+'_var_'+varName], ontoDeploy.hasValue, Literal(varValue, datatype=XSD.string), infraGraph))
-                    #print(resource + ' -> hasEnvVar -> ' + resourceName+"."+attr+'_var_'+varName)
-                    #print(resourceName+"."+attr+'_var_'+varName + ' -> ' + cls)
-                    #print(resourceName+"."+attr+'_var_'+varName + ' -> hasName -> ' + varName)
-                    #print(resourceName+"."+attr+'_var_'+varName + ' -> hasValue -> ' + str(varValue))
             else:
                 quads.append((MYAPP[resourceName+"."+attr], RDF.type, URIRef(cls), infraGraph))
-                #print(resourceName+"."+attr + ' -> ' + cls)
                 prop = ma.mapInputToProperty(attr, infraProps, False, True)
                 if prop != None:
-                    #print(resource + ' -> ' + str(prop) + ' -> ' + resourceName+"."+attr)
                     quads.append((MYAPP[resource], URIRef(prop), MYAPP[resourceName+"."+attr], infraGraph))
                     newProps = qa.getOntologyProperties(endpoint, [cls+"$"], 'domain')
                     ingestAttributeToOntology(output_data, resourceName, attr, value, infraClasses, newProps, infraGraph)
 
 def handleStringAttribute(infraGraph, resource, prop, value):
     quads.append((MYAPP[resource], URIRef(prop), Literal(value, datatype=XSD.string), infraGraph))
-    #print(resource + ' -> ' + str(prop) + ' -> ' + value)
     if 'aws_' in value:
         if '$' in value:
             value = value.split('{')[-1].split('}')[0]
-            #print(value)
         value = value.split('.')
         object = value[0]+'_'+value[1]
-        #print(resource + ' -> ' + str(prop) + ' -> ' + object)
         quads.append((MYAPP[resource], URIRef(prop), MYAPP[object], infraGraph))
     if 'template_file' in value:
         if '$' in value:
             value = value.split('{')[-1].split('}')[0]
-            #print(value)
         value = value.split('.')
         object = value[1]+'_'+value[2]
-        #print(resource + ' -> ' + str(prop) + ' -> ' + object)
         quads.append((MYAPP[resource], URIRef(prop), MYAPP[object], infraGraph))
     if 'var.' in value:
         if '$' in value:
@@ -132,14 +115,12 @@ def handleHostRelationship(output_data, infraGraph, resourceType, resource, attr
                                 prop = ma.mapInputToProperty(key, instances, False, True)
                                 for instance in instances:
                                     if str(instance[1]) == str(prop) and str(instance[2]) == str(val):
-                                        #print(resource + ' -> ' + ontoDeploy.hosts + ' -> ' + instance[0] + '=' + str(instance[2]))
                                         quads.append((MYAPP[resource], ontoDeploy.hosts, URIRef(instance[0]), infraGraph))
                                         quads.append((URIRef(instance[0]), ontoDeploy.hostedOn, MYAPP[resource], infraGraph))
                     except:
                         pass
 
-dockerClasses = qa.getOntologyClasses(endpoint, ['docker#'])
-infraClasses = qa.getOntologyClasses(endpoint, ['deploy'], True)
+
 quads = []
 
 def ingestInfra(endpoint, infra):
@@ -155,20 +136,14 @@ def ingestInfra(endpoint, infra):
     infraGraph = ds.graph(URIRef("http://www.myapp.org/infrastructure"))
     # Iterate over the .tf files and read their contents
     for file_path in tf_files:
-    #file_path = './terraform/scenariodt_infra/08_ecs.tf'
         with open(file_path, 'r') as f:
             output_data = hcl2.load(f)
-        #output_data = json.loads(output_json)
-        #print(output_data)
-        
 
         if 'resource' in output_data.keys():
 
             for resource in output_data['resource']:
                 for resourceType, instances in resource.items():
-                    #print(resourceType) # class
                     cls = ma.mapColumnToClass(resourceType.split("_", 1)[-1], infraClasses, False, True)
-                    #print(cls)
                     for name, attrs in instances.items():
                         quads.append((MYAPP[resourceType+'_'+name], RDF.type, URIRef(cls), infraGraph))
                         if str(cls) == str(ontoDeploy.Subnet):
@@ -182,9 +157,7 @@ def ingestInfra(endpoint, infra):
         if 'data' in output_data.keys():
             for data in output_data['data']:
                 for dataType, instances in data.items():
-                    #print(dataType) # class
                     cls = ma.mapColumnToClass(dataType, infraClasses, False, True)
-                    #print(cls)
                     if cls != None:
                         for name, attrs in instances.items():
                             quads.append((MYAPP[dataType+'_'+name], RDF.type, URIRef(cls), infraGraph))
@@ -208,7 +181,6 @@ def ingestInfra(endpoint, infra):
             for variable in output_data['variable']:
                 for varName, varAttrs in variable.items():
                     resource = resourceType + '_' + varName
-                    #print(resource, 'type', ontoDeploy.Variable)
                     quads.append((MYAPP[resource], RDF.type, ontoDeploy.Variable, infraGraph))
                     infraProps = qa.getOntologyProperties(endpoint, [ontoDeploy.Variable], 'domain')
                     for attr, value in varAttrs.items():
@@ -229,4 +201,19 @@ def ingestInfra(endpoint, infra):
                             handleStringAttribute(infraGraph, resource, prop, str(value))
                         
     ds.addN(quads)
+
+#import time 
+
+#start = time.time()
+dockerClasses = qa.getOntologyClasses(endpoint, ['docker#'])
+infraClasses = qa.getOntologyClasses(endpoint, ['deploy'], True)
+#mid = time.time()
+#ingestInfra(endpoint, 'db')
+#ingestInfra(endpoint, 'scenariodt_infra')
+#end = time.time()
+
+
+#print('Ontology classes retrieval time: ' + str(mid - start) + ' seconds')
+#print('Infra ingestion time: ' + str(end - mid) + ' seconds')
+#print('Total time: ' + str(end - start) + ' seconds')
                     

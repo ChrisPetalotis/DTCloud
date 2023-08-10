@@ -6,7 +6,7 @@ import mappingAgents as ma
 
 SPARQLEndpoint = TypeVar('SPARQLEndpoint', str, str)
 filePath = TypeVar('filePath', str, str)
-endpoint = "http://localhost:3030/ds/"
+
 # Define the Docker vocabulary namespace
 DOCKER = Namespace("https://w3.org/ns/bde/docker#")
 MYAPP = Namespace("http://www.myapp.org/")
@@ -119,10 +119,6 @@ def ingestContainerInspectData(graph, dictionary, container_id, entities, dic_na
             results.extend(subresults)
     return results
 
-filters = ['docker', 'container']
-props = qa.getOntologyProperties(endpoint, filters)
-dockerClasses = qa.getOntologyClasses(endpoint, ['docker#'])
-
 def ingestContainers(endpoint):
     endpoint_query = endpoint + 'sparql'
     endpoint_update = endpoint + 'update'
@@ -134,8 +130,6 @@ def ingestContainers(endpoint):
     ds.remove_graph(ds.get_context(MYAPP['container']))
     graph = ds.graph(MYAPP['container'])
 
-    
-    
     # get all existing containers
     client = docker.from_env()
     services = qa.getDTService(endpoint)
@@ -158,5 +152,15 @@ def ingestContainers(endpoint):
 
 #print(graph.serialize(format='turtle'))
 
+#import time
+endpoint = "http://localhost:3030/ds/"
+filters = ['docker', 'container']
 
+#start = time.time()
+props = qa.getOntologyProperties(endpoint, filters)
+dockerClasses = qa.getOntologyClasses(endpoint, ['docker#'])
+#ingestContainers(endpoint)
+#end = time.time()
+
+#print('Container Ingestion: ' + str(end - start) + ' seconds')
 

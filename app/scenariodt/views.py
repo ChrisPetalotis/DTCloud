@@ -17,12 +17,12 @@ import requests
 import json
 import base64
 import os
-
 import dash_cytoscape as cyto
 from dash import html, dcc
 from dash.dependencies import Input, Output
 from django_plotly_dash import DjangoDash
 
+# Ontologies namespaces
 GML = Namespace("http://www.opengis.net/gml/3.2/")
 MYAPP = Namespace("http://www.myapp.org/")
 RDF = Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
@@ -42,6 +42,7 @@ ontoGeo = Namespace("http://www.semanticweb.org/VasileiosDT/ontologies/ontoGeo/"
 ontoEco = Namespace("http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/")
 ontoScenario = Namespace("http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/")
 
+# number to word mappings for some imported classes from existing ontologies
 sio_ = {'has value':'000300', 'has property': '000223', 'has part': '000028'}
 bfo_ = {'has part':'0000051', 'occurs in':'0000066'}
 envo_ = {'ecosystem':'01001110', 'ecoregion':'01000276', 'wetland':'00000043', 'swamp forest':'01000432', 'shrub layer':'01000336', 'shrub area':'01000869', 'dwarf shrub area': '01000861', 'saline marsh': '00000054',
@@ -50,17 +51,43 @@ ro_ = {'has characteristic':'0000053', 'contained in':'0001018', 'has habitat':'
 ecso_ = {'ndvi':'00010076'}
 snomed = {'great reed warbler':'49532004', 'occurrence':'246454002'}
 
+# fuseki endpoint
 endpoint = os.getenv('SPARQL_ENDPOINT', "http://fuseki:3030/") + "ds/"
 endpoint_update = endpoint + "update"
 endpoint_query = endpoint + "sparql"
 
+# R APIs endpoints
 SDM_endpoint = os.getenv('SDM_ENDPOINT', 'http://sdm:80/')
 vis_endpoint = os.getenv('VIS_ENDPOINT', 'http://visualization:80/')
+
+def getScenarios(endpoint, filters :list = [], filterType :str = 'property'):
+    from rdflib import Dataset
+    ds = Dataset('SPARQLUpdateStore')
+    ds.open((endpoint + 'sparql', endpoint + 'update'))
+
+    filter_clause = " || ".join([f'regex(str(?{filterType}), "{filter}", "i") || regex(str(?l), "{filter}", "i")' for filter in filters])
+    filter_clause = f'FILTER ({filter_clause})' if filter_clause else ''
+    
+    sparql = """PREFIX myapp: <http://www.myapp.org/>
+                PREFIX prov: <http://www.w3.org/ns/prov#>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX ontoScenario: <http://www.semanticweb.org/VasileiosDT/ontologies/ontoScenario/>
+                SELECT DISTINCT ?name
+                WHERE 
+                {{
+                    GRAPH myapp:scenario {{
+                        ?scenario a ontoScenario:DomainScenario ;
+                            rdfs:label ?name .
+                    }}
+                }}"""
+    results = ds.query(sparql)
+    return results
 
 def main(request):
     ''' Shows home / main page.'''
     return render(request, "main.html")
 
+#--------------Django Login functionality--------------------#
 def register(request):
     '''Register view'''
     if request.user.is_authenticated:
@@ -86,9 +113,10 @@ def logout(request):
     '''Logout view'''
     dlogout(request)
     return redirect('main')
+#----------------------------------#
 
 def configureScenario(request):
-    '''Configure scenario view'''
+    '''Directs to Scenario configuration page'''
     # Check if authenticated
     if not request.user.is_authenticated:
         return HttpResponse("Unauthenticated")
@@ -99,41 +127,41 @@ def configureNewScenario(request):
     # Check if authenticated
     if not request.user.is_authenticated:
         return HttpResponse("Unauthenticated")
-    
+    # SPARQL query fuseki for the scenario related classes based on OntoScenario and OntoDomain
     ds = Dataset("SPARQLUpdateStore")
     ds.open((endpoint_query, endpoint_update))
     sparql = """
-          PREFIX myapp: <http://www.myapp.org/>
-          PREFIX ssn: <http://www.w3.org/ns/ssn/>
-          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-          PREFIX envo: <http://purl.obolibrary.org/obo/ENVO_>
-          SELECT DISTINCT ?m ?lab1 ?l ?lab2
-          WHERE {
-              {GRAPH myapp:ontology {
+            PREFIX myapp: <http://www.myapp.org/>
+            PREFIX ssn: <http://www.w3.org/ns/ssn/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX envo: <http://purl.obolibrary.org/obo/ENVO_>
+            SELECT DISTINCT ?m ?lab1 ?l ?lab2
+            WHERE {
+            {GRAPH myapp:ontology {
                 ?m rdfs:subClassOf* ssn:Property ;
-                   rdfs:label ?lab1 .
+                    rdfs:label ?lab1 .
                 FILTER NOT EXISTS {?s rdfs:subClassOf ?m}
-              }
-              }
-              UNION
-              {GRAPH myapp:ecosystem {
-                ?l a ?landcover .
-                FILTER regex(str(?l), "No0")
-              }
-              GRAPH myapp:ontology {
-                ?landcover rdfs:subClassOf* envo:00000043 ;
-                           rdfs:label ?lab2 .
-                FILTER NOT EXISTS {?o rdfs:subClassOf ?landcover}
-              }
-              } 
-          }"""
+                }
+            }
+            UNION
+            {
+                GRAPH myapp:ontology {
+                ?l rdfs:subClassOf* envo:00000043 ;
+                    rdfs:label ?lab2 .
+                FILTER NOT EXISTS {?o rdfs:subClassOf ?l}
+                }
+            } 
+            }"""
     results = ds.query(sparql)
+
+    # get the required labels for the django form
     options = []
     for row in results:
         if row[0] != None:
             options.append((row[0].rsplit("/", 1)[-1], str(row[1]) + " (" + str(row[0].rsplit("/", 1)[-1]) + ")"))
         else:
-            options.append((row[2].rsplit("/", 1)[-1].rsplit("_", 1)[0], "Fraction of " + str(row[3]) + " Area"))
+            options.append((str(row[2]), "Fraction of " + str(row[3]) + " Area"))
+    # submit the form
     if request.method == 'POST':
         form = ScenarioConfigForm(options, request.POST)
         if form.is_valid():
@@ -143,10 +171,9 @@ def configureNewScenario(request):
             factors = form.cleaned_data['impact_factors']
             # Save the scenario configuration to the database
             storeScenario(request.user, ds, condition, description, region, factors)
-            # Redirect to a success page or do something else
             messages.add_message(request, messages.INFO, "Scenario configuration saved successfully.")
             return redirect("main")
-    else:
+    else: # render the form based on the ontologies
         form = ScenarioConfigForm(options)
 
     return render(request, 'new_scenario.html', {'sform': form})
@@ -157,6 +184,7 @@ def selectScenario(request):
     if not request.user.is_authenticated:
         return HttpResponse("Unauthenticated")
     
+    # SPARQL query fuseki for the scenarios that the user has access to
     ds = Dataset("SPARQLUpdateStore")
     ds.open((endpoint_query, endpoint_update))
     sparql = """
@@ -189,6 +217,7 @@ def selectScenario(request):
     for row in results:
         options.append((row[0], row[1]))
 
+    # pick a scenario to configure a new one based on it
     if request.method == 'POST':
         form = ScenarioSelectionForm(options, request.POST)
         if form.is_valid():
@@ -201,48 +230,44 @@ def selectScenario(request):
     return render(request, 'select_scenario.html', {'selectform': form})
 
 def reconfigureScenario(request):
-    '''Reconfigure scenario view'''
+    '''Configure Scenario based on existing one'''
     # Check if authenticated
     if not request.user.is_authenticated:
         return HttpResponse("Unauthenticated")
-    
+    # SPARQL query fuseki for the scenario related classes based on OntoScenario and OntoDomain
     ds = Dataset("SPARQLUpdateStore")
     ds.open((endpoint_query, endpoint_update))
     sparql = """
           PREFIX myapp: <http://www.myapp.org/>
-          PREFIX sio: <http://semanticscience.org/resource/SIO_>
-          PREFIX ssn: <http://www.w3.org/ns/ssn/>
-          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-          PREFIX envo: <http://purl.obolibrary.org/obo/ENVO_>
-          SELECT DISTINCT ?m ?lab1 ?l ?lab2
-          WHERE {
-              {GRAPH myapp:ontology {
+            PREFIX ssn: <http://www.w3.org/ns/ssn/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX envo: <http://purl.obolibrary.org/obo/ENVO_>
+            SELECT DISTINCT ?m ?lab1 ?l ?lab2
+            WHERE {
+            {GRAPH myapp:ontology {
                 ?m rdfs:subClassOf* ssn:Property ;
-                   rdfs:label ?lab1 .
+                    rdfs:label ?lab1 .
                 FILTER NOT EXISTS {?s rdfs:subClassOf ?m}
-              }}
-              UNION
-              {GRAPH myapp:ecosystem {
-                ?l a ?landcover .
-                FILTER regex(str(?l), "No0")
-              }
-              GRAPH myapp:ontology {
-                ?landcover rdfs:subClassOf* envo:00000043 ;
-                           rdfs:label ?lab2 .
-                FILTER NOT EXISTS {?o rdfs:subClassOf ?landcover}
-              }}
-              
-          }
-
-          """
+                }
+            }
+            UNION
+            {
+                GRAPH myapp:ontology {
+                ?l rdfs:subClassOf* envo:00000043 ;
+                    rdfs:label ?lab2 .
+                FILTER NOT EXISTS {?o rdfs:subClassOf ?l}
+                }
+            } 
+            }"""
     results = ds.query(sparql)
     options = {}
     for row in results:
         if row[0] != None:
             options[row[0].rsplit("/", 1)[-1]] = str(row[1]) + " (" + str(row[0].rsplit("/", 1)[-1]) + ")"
         else:
-            options[row[2].rsplit("/", 1)[-1].rsplit("_", 1)[0]] = "Fraction of " + str(row[3]) + " Area"
+            options[str(row[2])] = "Fraction of " + str(row[3]) + " Area"
 
+    # SPAQRL query fuseki for the existing scenario configuration to pre-populate the django form
     scenario = request.session.get('scenario')
     sparql2 = """
             PREFIX prov: <http://www.w3.org/ns/prov#>
@@ -294,23 +319,23 @@ def reconfigureScenario(request):
             factors = form.cleaned_data['impact_factors']
             # Save the scenario configuration to the database
             storeScenario(request.user, ds, condition, description, roi, factors, scenario)
-            # Redirect to a success page or do something else
             messages.add_message(request, messages.INFO, "Scenario configuration saved successfully.")
             return redirect("main")
-    else:
+    else: # rended the django form pre-populated with the existing scenario configuration
         form = ScenarioReconfigForm(options, initials)
 
     return render(request, 'reconfigure_scenario.html', {'reform': form})
 
 def storeScenario(user, ds, scenario_condition, scenario_description, region, metrics_factors_dict, baseScenario=None):
-    '''Save scenario configuration to graph'''
+    '''Save scenario configuration to knowledge graph based on OntoScenario'''
     
     scenario_graph = ds.graph(URIRef("http://www.myapp.org/scenario"))
+    # generate a unique scenario id based on the current date and time
     current_dateTime = str(datetime.now())
     scenario_id = current_dateTime.replace(' ', '').replace('-', '').replace(':','').rsplit(".", 1)[0]
     scenario_name = scenario_condition.replace(' ', '_') + "_" + scenario_id
     
-    # add the scenario semantics in the knowledge graph
+    # add the scenario semantics in the knowledge graph, together with provenance information
     quads = []
     quads.append((MYAPP[scenario_name + '_scenario'], RDF.type, ontoScenario.DomainScenario, scenario_graph))
     quads.append((MYAPP[scenario_name + '_scenario'], RDFS.label, Literal(scenario_name, datatype=XSD.string), scenario_graph))
@@ -325,18 +350,19 @@ def storeScenario(user, ds, scenario_condition, scenario_description, region, me
     quads.append((MYAPP['user_' + str(user.id)], RDF.type, ontoScenario.User, scenario_graph))
     quads.append((MYAPP[scenario_name + '_scenario'], PROV.wasGeneratedBy, MYAPP[scenario_name + '_scenario_configuration'], scenario_graph))
     quads.append((MYAPP[scenario_name + '_scenario'], PROV.wasAttributedTo, MYAPP['user_' + str(user.id)], scenario_graph))
-    quads.append((MYAPP.scenarioConfigAgent, RDF.type, ontoScenario.ScenarioConfigurationAgent, scenario_graph))
-    quads.append((MYAPP[scenario_name + '_scenario_configuration'], PROV.wasAssociatedWith, MYAPP.scenarioConfigAgent, scenario_graph))
-    quads.append((MYAPP.scenarioConfigAgent, PROV.actedOnBehalfOf, MYAPP['user_' + str(user.id)], scenario_graph))
+    quads.append((MYAPP[scenario_name + 'ConfigAgent'], RDF.type, ontoScenario.ScenarioConfigurationAgent, scenario_graph))
+    quads.append((MYAPP[scenario_name + '_scenario_configuration'], PROV.wasAssociatedWith, MYAPP[scenario_name + 'ConfigAgent'], scenario_graph))
+    quads.append((MYAPP[scenario_name + 'ConfigAgent'], PROV.actedOnBehalfOf, MYAPP['user_' + str(user.id)], scenario_graph))
     if baseScenario != None:
         quads.append((MYAPP[scenario_name + '_scenario'], PROV.wasDerivedFrom, URIRef(baseScenario), scenario_graph))
+    else:
+        quads.append((MYAPP[scenario_name + '_scenario'], PROV.wasDerivedFrom, MYAPP.BaseScenario, scenario_graph))
     
     #scenario parameters are: Region of intetest polygon, affected metrics, and impact factors
     quads.append((MYAPP[scenario_name + '_roi'], RDF.type, ontoScenario.ScenarioRegion, scenario_graph))
-    quads.append((MYAPP[scenario_name + '_roi'], RDFS.label, Literal("Scenario " + scenario_name + " Region of Impact", datatype=XSD.string), scenario_graph))
     quads.append((MYAPP[scenario_name + "_roi_geometry"], RDF.type, GML.Polygon, scenario_graph))
     quads.append((MYAPP[scenario_name + '_roi'], GEOSPARQL.hasGeometry, MYAPP[scenario_name + "_roi_geometry"], scenario_graph))
-    if baseScenario == None:
+    if baseScenario == None: # if it is a new scenario, transform and save the handpicked scenario region
         roi_coords = transformSRS(region)
         poslist = ""
         for coord in roi_coords:
@@ -346,56 +372,47 @@ def storeScenario(user, ds, scenario_condition, scenario_description, region, me
     quads.append((MYAPP[scenario_name + "_roi_geometry"], GML.srsName, Literal("urn:ogc:def:crs:EPSG::28992", datatype=XSD.string), scenario_graph))
     quads.append((MYAPP[scenario_name + '_scenario'], BFO[bfo_['occurs in']], MYAPP[scenario_name + '_roi'], scenario_graph))
     i = 0
+    # map scenario parameter to the corresponding OntoDomain vegetation metric
     for metric, factor in metrics_factors_dict.items():
       i += 1
-      if "landcover" in metric:
-        if "forest" in metric:
-            quads.append((MYAPP[scenario_name + '_affected_metric_' + str(i)], RDF.type, ENVO[envo_['wetland forest']], scenario_graph))
-        elif "shrub" in metric:
-            if "high" in metric:
-                quads.append((MYAPP[scenario_name + '_affected_metric_' + str(i)], RDF.type, ENVO[envo_['shrub area']], scenario_graph))
-            else:
-                quads.append((MYAPP[scenario_name + '_affected_metric_' + str(i)], RDF.type, ENVO[envo_['dwarf shrub area']], scenario_graph))
-        elif "reed" in metric:
-            quads.append((MYAPP[scenario_name + '_affected_metric_' + str(i)], RDF.type, ontoEco['ReedArea'], scenario_graph))
-        elif "marsh" in metric:
-            quads.append((MYAPP[scenario_name + '_affected_metric_' + str(i)], RDF.type, ENVO[envo_['saline marsh']], scenario_graph))
-        elif "swamp" in metric:
-            quads.append((MYAPP[scenario_name + '_affected_metric_' + str(i)], RDF.type, ENVO[envo_['swamp area']], scenario_graph))
+      if ("ENVO" in metric) or ("ReedArea" in metric):
+        quads.append((MYAPP[scenario_name + '_parameter_' + str(i)], RDF.type, URIRef(metric), scenario_graph))
       else:
-          quads.append((MYAPP[scenario_name + '_affected_metric_' + str(i)], RDF.type, ontoEco[metric], scenario_graph))
-      quads.append((MYAPP[scenario_name + '_affected_metric_' + str(i)], RDF.type, ontoScenario.AffectedMetric, scenario_graph))
-      quads.append((MYAPP[scenario_name + '_affected_metric_' + str(i)], RDFS.label, Literal("Scenario Parameter: " + metric, datatype=XSD.string), scenario_graph))
-      quads.append((MYAPP[scenario_name + '_scenario'], ontoScenario.hasScenarioParameter, MYAPP[scenario_name + '_affected_metric_' + str(i)], scenario_graph))
+        quads.append((MYAPP[scenario_name + '_parameter_' + str(i)], RDF.type, ontoEco[metric], scenario_graph))
+      quads.append((MYAPP[scenario_name + '_parameter_' + str(i)], RDF.type, ontoScenario.ScenarioParameter, scenario_graph))
+      quads.append((MYAPP[scenario_name + '_parameter_' + str(i)], RDFS.label, Literal("Scenario Parameter: " + metric, datatype=XSD.string), scenario_graph))
+      quads.append((MYAPP[scenario_name + '_scenario'], ontoScenario.hasScenarioParameter, MYAPP[scenario_name + '_parameter_' + str(i)], scenario_graph))
       quads.append((MYAPP[scenario_name + '_effect_' + str(i)], RDF.type, ontoScenario.ScenarioEffect, scenario_graph))
       quads.append((MYAPP[scenario_name + '_effect_' + str(i)], RDFS.label, Literal("Scenario Effect on " + metric, datatype=XSD.string), scenario_graph))
       quads.append((MYAPP[scenario_name + '_effect_' + str(i)], ontoScenario.hasImpactFactor, Literal(factor, datatype=XSD.float), scenario_graph))
-      quads.append((MYAPP[scenario_name + '_effect_' + str(i)], ontoScenario.affects, MYAPP[scenario_name + '_affected_metric_' + str(i)], scenario_graph))
+      quads.append((MYAPP[scenario_name + '_effect_' + str(i)], ontoScenario.affects, MYAPP[scenario_name + '_parameter_' + str(i)], scenario_graph))
     
     ds.addN(quads)
 
 def transformSRS(region):
-        # get region coordinates
-        pattern = r'\[(-?\d+(\.\d+)?),(-?\d+(\.\d+)?)]'
-        matches = re.findall(pattern, region)
-        # Create a list of tuples with the coordinates
-        coordinates = [(float(y), float(x)) for x, _, y, _ in matches]
-        
-        # transform coords to EPSG:28992
-        src_crs = pyproj.CRS('EPSG:4326')
-        target_crs = pyproj.CRS('EPSG:28992')
-        transformer = pyproj.Transformer.from_crs(src_crs, target_crs)
-        roi_coords = []
-        for coord_pair in coordinates:
-            x, y = transformer.transform(coord_pair[0], coord_pair[1])
-            roi_coords.append((x, y))
-        return roi_coords
+    '''SRS transformation from WGS84 to EPSG:28992'''
+    # get region coordinates
+    pattern = r'\[(-?\d+(\.\d+)?),(-?\d+(\.\d+)?)]'
+    matches = re.findall(pattern, region)
+    # Create a list of tuples with the coordinates
+    coordinates = [(float(y), float(x)) for x, _, y, _ in matches]
+    
+    # transform coords to EPSG:28992
+    src_crs = pyproj.CRS('EPSG:4326')
+    target_crs = pyproj.CRS('EPSG:28992')
+    transformer = pyproj.Transformer.from_crs(src_crs, target_crs)
+    roi_coords = []
+    for coord_pair in coordinates:
+        x, y = transformer.transform(coord_pair[0], coord_pair[1])
+        roi_coords.append((x, y))
+    return roi_coords
 
 def executeScenario(request):
-    '''Submit scenario view'''
+    '''Execute scenario view'''
     # Check if authenticated
     if not request.user.is_authenticated:
         return HttpResponse("Unauthenticated")
+    # SPARQL query for the scenarios the user has access to, that have not been executed yet
     ds = Dataset("SPARQLUpdateStore")
     ds.open((endpoint_query, endpoint_update))
     sparql = """
@@ -406,26 +423,22 @@ def executeScenario(request):
                 SELECT DISTINCT ?name
                 WHERE 
                 {{
-                GRAPH ?g{{}}
                     {{
-                        GRAPH myapp:scenario 
-                        {{
-                        ?scenario rdfs:label ?name ;
-                            prov:wasAttributedTo myapp:user_{user} .
+                        GRAPH myapp:scenario {{
+                            ?scenario rdfs:label ?name ;
+                                prov:wasAttributedTo myapp:user_{user} .
                         }}
                     }}
                     UNION
                     {{
-                        GRAPH myapp:scenario 
-                        {{
-                        ?scenario rdfs:label ?name .
-                        myapp:user_{user} ontoScenario:hasAccess ?scenario .
+                        GRAPH myapp:scenario {{
+                            ?scenario rdfs:label ?name .
+                            myapp:user_{user} ontoScenario:hasAccess ?scenario .
                         }}
                     }}
-                    FILTER NOT EXISTS{{
-                        GRAPH myapp:scenario 
-                        {{
-                        ?scenario ontoScenario:wasExecutedBy ?exec .
+                    FILTER NOT EXISTS {{
+                        GRAPH myapp:scenario {{
+                            ?scenario ontoScenario:wasExecutedBy ?exec .
                         }}
                     }}
                 }}""".format(user=str(request.user.id))
@@ -433,28 +446,37 @@ def executeScenario(request):
     options=[]
     for row in results:
             options.append((row[0], row[0]))
+    # scenario execution
     if request.method == 'POST':
         form = ScenarioExecForm(options, request.POST)
         if form.is_valid():
             current_dateTime = str(datetime.now())
             scenario_name = request.POST['scenario']
+            # create named graph for the scenario to save the updated values
             createScenarioView(ds, scenario_name, request.user)
+            # retrieve scenario RDF data and transform to pandas dataframe
             df = RDFtoDataFrame(ds, scenario_name)
+            # send data to SDM API and get predictions
             predictions = getSDMResults(df, SDM_endpoint)
+            # transform predictions to RDF and save to scenario named graph
             addResultsToGraph(ds, scenario_name, predictions)
             messages.add_message(request, messages.INFO, "Results were saved to scenario view.")
+            # retrieve scenario results, transform to pandas dataframe
             results_df = retrieveScenarioResults(ds, scenario_name)
+            # send results to visualization API and get serialized map image
             img_url = getResultsVisualization(results_df, vis_endpoint)
+            # dict for base scenario and alternative scenario images
             img_urls = {static('img/baseScenario.png'): 'Base Scenario'}
             img_urls[img_url] = scenario_name
 
-            # Add scenario execution to graph
+            # Add scenario execution provenance data to graph
             scenario_graph = ds.graph(URIRef("http://www.myapp.org/scenario"))
             quads = []
             quads.append((MYAPP[scenario_name + '_scenario_execution'], RDF.type, ontoScenario.ScenarioExecution, scenario_graph))
             quads.append((MYAPP[scenario_name + '_scenario_execution'], PROV.startedAtTime, Literal(current_dateTime, datatype=XSD.datetime), scenario_graph))
             quads.append((MYAPP[scenario_name + '_scenario'], ontoScenario.wasExecutedBy, MYAPP[scenario_name + '_scenario_execution'], scenario_graph))
             ds.addN(quads)
+            # visualize base and alternative scenarios
             return render(request, "plot.html", {'scenario_img_urls': img_urls})
     else:
         form = ScenarioExecForm(options=options)
@@ -462,12 +484,14 @@ def executeScenario(request):
     return render(request, 'execute_scenario.html', {'eform': form})
 
 def getSDMResults(output_df, API_url):
+    '''Send data to SDM API and get predictions'''
     json_data = '{"df":' + output_df.to_json() + '}'
     headers = {'Content-Type': 'application/json'}
     predictions = requests.post(API_url + "predictions", data=json_data, headers=headers)
     return json.loads(predictions.content)
 
 def getResultsVisualization(df, API_url):
+    '''Send data to visualization API and get serialized map image'''
     json_data = '{"df":' + df.to_json() + '}'
     headers = {'Content-Type': 'application/json'}
     response = requests.post(API_url + "plot", data=json_data, headers=headers)
@@ -533,7 +557,6 @@ def createScenarioView(ds, scenario_name, user):
                 }}
                 GRAPH myapp:scenario {{
                   ?scenario rdfs:label "{scenario}"^^xsd:string ;
-                    bfo:0000066 ?roi ;
                     ontoScenario:hasScenarioParameter ?param ;
                     prov:wasAttributedTo myapp:user_{user} .
                   ?param a ?metrictype .
@@ -551,7 +574,7 @@ def createScenarioView(ds, scenario_name, user):
         point = Point(x, y)
         # check if the current point lies within the polygon or intersects it
         if point.within(polygon) or point.intersects(polygon):
-            # add a "within" relationship between the point and the polygon nodes
+            # calculate the scenario value for each metric and store it in the scenario's named graph
             new_value = float(row[2]) * float(row[3])
             if "landcover" in str(row[1]):
                 quads.append((row.metric, ontoEco.coveredFractionOfRegion , Literal(str(new_value), datatype=XSD.float), scenario_graph))
@@ -570,7 +593,7 @@ def polygonToCoords(polygon_string):
     return coords[:-1]
 
 def RDFtoDataFrame(ds, scenario_name):
-    """Function that SPARQL queries the triple store and returns a Pandas DataFrame with
+    """Function that SPARQL queries the triplestore and returns a Pandas DataFrame with
     the features for the SDM model"""
     sparql = """
           PREFIX myapp: <http://www.myapp.org/>
@@ -720,12 +743,7 @@ def retrieveScenarioResults(ds, scenario_name):
         df.loc[index, "x"] = x_coord
         df.loc[index, "y"] = y_coord
     sparql = """
-                PREFIX prov: <http://www.w3.org/ns/prov#>
                 PREFIX myapp: <http://www.myapp.org/>
-                PREFIX geo: <http://www.opengis.net/ont/geosparql#>
-                PREFIX bfo: <http://purl.obolibrary.org/obo/BFO_>
-                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
                 PREFIX ontoEco: <http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/>
                 SELECT ?s  ?o
                 WHERE {{
@@ -855,6 +873,7 @@ def giveAccessToScenario(ds, scenario, users):
     scenario_graph = ds.graph(identifier=URIRef(MYAPP['scenario']))
     quads = []
     for user in users:
+        quads.append((MYAPP['user_' + str(user)], RDF.type, ontoScenario.User, scenario_graph))
         quads.append((MYAPP['user_' + str(user)], ontoScenario.hasAccess, URIRef(scenario), scenario_graph))
     ds.addN(quads)
 
@@ -892,72 +911,25 @@ def knowledgeGraph(request):
                 PREFIX owl: <http://www.w3.org/2002/07/owl#>
                 PREFIX myapp: <http://www.myapp.org/>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT DISTINCT ?domain ?property ?range ?l1 ?l2 ?l3
+                SELECT DISTINCT ?domain ?property ?range
                 WHERE {{
                 {{
-                    {{
-                        GRAPH myapp:ontology {{
-                            ?domain a owl:Class .
-                            ?domain rdfs:subClassOf* ?res .
-                            ?res a owl:Restriction ;
-                                owl:onProperty ?property ;
-                                ?p2 ?range .
-                            ?range a owl:Class .
-                        }}
+                
+                    GRAPH myapp:scenario {{
+                        ?domain ?property ?range
                     }}
-                    UNION
-                    {{
-                        GRAPH myapp:ontology {{
-                            ?domain a owl:Class .
-                            ?domain rdfs:subClassOf* ?res .
-                            ?res a owl:Restriction ;
-                                owl:onProperty ?property ;
-                                owl:someValuesFrom ?range .
-                        }}
-                    }}
-                    OPTIONAL {{ ?domain rdfs:label ?l1 . }}
-                    OPTIONAL {{ ?property rdfs:label ?l2 . }}
-                    OPTIONAL {{ ?range rdfs:label ?l3 . }}   
                 }}
             }}"""
     results =ds.query(sparql)
     for row in results:
         if row[1] != None:
-            data = {'id': row[0].n3(ds.namespace_manager), 'label': row[3]}
+            data = {'id': row[0].n3(ds.namespace_manager), 'label': row[0].n3(ds.namespace_manager)}
             elements.append({'data': data})
-            data = {'id': row[2].n3(ds.namespace_manager), 'label': row[5]}
+            data = {'id': row[2].n3(ds.namespace_manager), 'label': row[2].n3(ds.namespace_manager)}
             elements.append({'data': data})
-            data = {'source': row[0].n3(ds.namespace_manager), 'target': row[2].n3(ds.namespace_manager), 'label': row[4]}
-            elements.append({'data': data})
-    sparql = """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                PREFIX owl: <http://www.w3.org/2002/07/owl#>
-                PREFIX myapp: <http://www.myapp.org/>
-                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT DISTINCT ?domain ?range ?l1 ?l2
-                WHERE {{
-                {{
-                    
-                        GRAPH myapp:ontology {{
-                            ?domain rdfs:subClassOf ?range .
-                            ?domain a owl:Class .
-                            ?range a owl:Class .
-                        }}
-                    
-                    OPTIONAL {{ ?domain rdfs:label ?l1 . }}
-                    OPTIONAL {{ ?range rdfs:label ?l2 . }}  
-                }}
-                FILTER (!isBlank(?range))
-                FILTER (!isBlank(?domain))
-            }}"""
-    results =ds.query(sparql)
-    for row in results:
-        data = {'id': row[0].n3(ds.namespace_manager), 'label': row[2]}
-        elements.append({'data': data})
-        data = {'id': row[1].n3(ds.namespace_manager), 'label': row[3]}
-        elements.append({'data': data})
-        data = {'source': row[0].n3(ds.namespace_manager), 'target': row[1].n3(ds.namespace_manager), 'label': 'rdfs:subClassOf'}
-        elements.append({'data': data})
-
+            data = {'source': row[0].n3(ds.namespace_manager), 'target': row[2].n3(ds.namespace_manager), 'label': row[1].n3(ds.namespace_manager)}
+            if data not in elements:
+                elements.append({'data': data})
 
     cytoscape_style = [
         {
@@ -1020,14 +992,24 @@ def knowledgeGraph(request):
         }
     ]
 
+    scenarioProperties = []
+    scenarioProps = getScenarios(endpoint)
+    for scen in scenarioProps:
+        if scen[0] != None:
+            scenarioProperties.append(str(scen[0]))
+
     # Build App
     app = DjangoDash("KnowledgeGraph")
     app.layout = html.Div([html.Div([
             # Node ID input
-            html.Label('Search Class: ', style={'color': '#ffffff'}),
+            html.Label('Choose Scenario: ', style={'color': '#ffffff'}),
             html.Div([
                 html.Div([
-                    dcc.Input(id='node_id', type='text', value='')
+                    dcc.Dropdown(
+                        id='node_id',
+                        options=[{'label': option, 'value': option} for option in scenarioProperties],
+                        value='', style={'width': '300px'} 
+                    ),
                 ], className='col-md-8'),
             ], className='row'),
         ], style= {'display': 'flex', 'align-items': 'center', 'justify-content': 'center', 'padding-bottom': '10px'}),
@@ -1051,7 +1033,7 @@ def knowledgeGraph(request):
         Input('node_id', 'value')
     )
     def update_graph(node_id):
-        filter_clause = f'FILTER (regex(str(?domain), "{node_id}$", "i") || regex(str(?property), "{node_id}", "i") || regex(str(?range), "{node_id}$", "i"))'
+        filter_clause = f'FILTER (regex(str(?domain), "{node_id}", "i") || regex(str(?property), "{node_id}", "i") || regex(str(?range), "{node_id}", "i") || regex(str(?label), "{node_id}", "i"))'
         if not node_id:
             # If no node ID is entered, return the full graph data
             return elements
@@ -1060,82 +1042,48 @@ def knowledgeGraph(request):
                 PREFIX owl: <http://www.w3.org/2002/07/owl#>
                 PREFIX myapp: <http://www.myapp.org/>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT DISTINCT ?domain ?property ?range ?l1 ?l2 ?l3
+                PREFIX prov: <http://www.w3.org/ns/prov#>
+                PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+                SELECT DISTINCT ?domain ?property ?range ?p ?o
                 WHERE {{
                 {{
-                    {{
-                        GRAPH myapp:ontology {{
-                            ?domain a owl:Class .
-                            ?domain rdfs:subClassOf* ?res .
-                            ?res a owl:Restriction ;
-                                owl:onProperty ?property ;
-                                ?p2 ?range .
-                            ?range a owl:Class .
-                        }}
+                
+                    GRAPH myapp:scenario {{
+                        ?domain ?property ?range
+                        OPTIONAL {{?range ?p ?o}}
                     }}
-                    UNION
-                    {{
-                        GRAPH myapp:ontology {{
-                            ?domain a owl:Class .
-                            ?domain rdfs:subClassOf* ?res .
-                            ?res a owl:Restriction ;
-                                owl:onProperty ?property ;
-                                owl:someValuesFrom ?range .
-                        }}
-                    }}
-                    OPTIONAL {{ ?domain rdfs:label ?l1 . }}
-                    OPTIONAL {{ ?property rdfs:label ?l2 . }}
-                    OPTIONAL {{ ?range rdfs:label ?l3 . }}   
+                    OPTIONAL {{?property rdfs:label ?label}}
                 }}
                 {filter}
             }}""".format(filter=filter_clause)
         results =ds.query(sparql)
         for row in results:
             if row[1] != None:
-                data = {'id': row[0].n3(ds.namespace_manager), 'label': row[3]}
+                data = {'id': row[0].n3(ds.namespace_manager), 'label': row[0].n3(ds.namespace_manager)}
                 new_elements.append({'data': data})
-                data = {'id': row[2].n3(ds.namespace_manager), 'label': row[5]}
+                data = {'id': row[2].n3(ds.namespace_manager), 'label': row[2].n3(ds.namespace_manager)}
                 new_elements.append({'data': data})
-                data = {'source': row[0].n3(ds.namespace_manager), 'target': row[2].n3(ds.namespace_manager), 'label': row[4]}
+                data = {'source': row[0].n3(ds.namespace_manager), 'target': row[2].n3(ds.namespace_manager), 'label': row[1].n3(ds.namespace_manager)}
+                if data not in new_elements:
+                    new_elements.append({'data': data})
+            if row[3] != None:
+                data = {'id': row[4].n3(ds.namespace_manager), 'label': row[4].n3(ds.namespace_manager)}
                 new_elements.append({'data': data})
-        sparql = """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                PREFIX owl: <http://www.w3.org/2002/07/owl#>
-                PREFIX myapp: <http://www.myapp.org/>
-                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT DISTINCT ?domain ?range ?l1 ?l2
-                WHERE {{
-                {{
-                    
-                        GRAPH myapp:ontology {{
-                            ?domain rdfs:subClassOf ?range .
-                            ?domain a owl:Class .
-                            ?range a owl:Class .
-                        }}
-                    
-                    OPTIONAL {{ ?domain rdfs:label ?l1 . }}
-                    OPTIONAL {{ ?range rdfs:label ?l2 . }}  
-                }}
-                FILTER (!isBlank(?range))
-                FILTER (!isBlank(?domain))
-                {filter}
-            }}""".format(filter=filter_clause)
-        results =ds.query(sparql)
-        for row in results:
-            data = {'id': row[0].n3(ds.namespace_manager), 'label': row[2]}
-            new_elements.append({'data': data})
-            data = {'id': row[1].n3(ds.namespace_manager), 'label': row[3]}
-            new_elements.append({'data': data})
-            data = {'source': row[0].n3(ds.namespace_manager), 'target': row[1].n3(ds.namespace_manager), 'label': 'rdfs:subClassOf'}
-            new_elements.append({'data': data})
+                data = {'source': row[2].n3(ds.namespace_manager), 'target': row[4].n3(ds.namespace_manager), 'label': row[3].n3(ds.namespace_manager)}
+                if data not in new_elements:
+                    new_elements.append({'data': data})
             
         if len(new_elements) > 0:
-            return new_elements
+            unique_list = []
+            seen_ids = []
+
+            for d in new_elements:
+                if d['data'] not in seen_ids:
+                    unique_list.append(d)
+                    seen_ids.append(d['data'])
+            return unique_list
         else:
             return elements
-    """fuseki_endpoint = os.getenv("SPARQL_ENDPOINT", "http://localhost:3030/")
-    context = {
-        "sparql_endpoint": fuseki_endpoint
-    }"""
     return render(request, 'ontology.html')
 
 def deleteScenario(request):

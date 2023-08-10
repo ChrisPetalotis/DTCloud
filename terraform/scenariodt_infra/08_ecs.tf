@@ -32,7 +32,7 @@ data "template_file" "app" {
     django_container_memory = 500
     django_container_port   = 8000
     django_host_port        = 8000
-    django_command          = "python manage.py makemigrations && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn scenariodt.wsgi:application --timeout 120 --bind 0.0.0.0:8000"
+    django_command          = "python manage.py makemigrations && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn scenariodt.wsgi:application --timeout 120 --threads 2 --bind 0.0.0.0:8000"
     region                  = var.region
     rds_db_name             = var.rds_db_name
     rds_username            = var.rds_username
@@ -66,6 +66,7 @@ resource "aws_ecs_service" "scenariodt" {
   task_definition        = aws_ecs_task_definition.app.arn
   iam_role               = aws_iam_role.scenariodt-service-role.arn
   desired_count          = var.app_count
+  health_check_grace_period_seconds = 100
   depends_on             = [aws_alb_listener.scenariodt-ecs-alb-http-listener, aws_iam_role_policy.scenariodt-service-role-policy]
   
   load_balancer {
@@ -119,7 +120,8 @@ resource "aws_ecs_service" "sdm" {
   iam_role               = aws_iam_role.scenariodt-service-role.arn
   desired_count          = var.sdm_count
   depends_on             = [aws_alb_listener_rule.sdm, aws_iam_role_policy.scenariodt-service-role-policy]
-  
+  health_check_grace_period_seconds = 100
+
   load_balancer {
     target_group_arn = aws_alb_target_group.sdm-target-group.arn
     container_name   = "sdm"
@@ -134,7 +136,7 @@ data "template_file" "vis" {
   vars = {
     vis_container_name   = "visualization"
     docker_image_url_vis = "vasilis421/r-vis-api:latest"
-    vis_container_cpu    = 128
+    vis_container_cpu    = 256
     vis_container_memory = 256
     vis_container_port   = 80
     vis_host_port        = 8006
@@ -154,6 +156,7 @@ resource "aws_ecs_service" "visualization" {
   task_definition        = aws_ecs_task_definition.visualization.arn
   iam_role               = aws_iam_role.scenariodt-service-role.arn
   desired_count          = var.vis_count
+  health_check_grace_period_seconds = 100
   depends_on             = [aws_alb_listener_rule.vis, aws_iam_role_policy.scenariodt-service-role-policy]
   
   load_balancer {

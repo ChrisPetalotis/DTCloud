@@ -29,31 +29,7 @@
     </div>
 
     <div class="col-4 d-flex justify-content-center title">
-        <a class="text-white text-decoration-none" href="{% url 'main' %}">EcoTwin</a>
-    </div>
-
-    <div class="col-4 d-flex justify-content-end" >
-        {% if daily_game is not None %}
-            <div class="title2 align-self-center"> Remaining Guesses</div>
-            
-            {% if remaining > 4 %}
-            <div class="leftGuessGreen">
-                <p class="green">{{ remaining }}</p>
-            </div>
-            {% elif remaining == 2 %}
-            <div class="leftGuessOrange">
-                <p class="orange">{{ remaining }}</p>
-            </div>
-            {% elif remaining == 1 %}
-            <div class="leftGuessRed">
-                <p class="red">{{ remaining }}</p>
-            </div>
-            {% else %}
-            <div class="leftGuessYellow">
-                <p class="yellow">{{ remaining }}</p>
-            </div>
-            {% endif %}
-        {% endif %}
+        <a class="text-white text-decoration-none" href="{% url 'main' %}">EcoDTwin</a>
     </div>
 </div>
 </div>

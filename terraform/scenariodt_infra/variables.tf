@@ -60,7 +60,7 @@ variable "sdm_count" {
 
 variable "vis_count" {
   description = "Number of scenariodt containers to run"
-  default     = 1
+  default     = 2
 }
 
 variable "docker_image_url_django" {

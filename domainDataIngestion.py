@@ -135,6 +135,7 @@ def transformToRDF(endpoint :SPARQLEndpoint, filepath :filePath, df : pd.DataFra
         # every ObservationRegion has a Point centroid/geometry
         coords_uri = MYAPP[row_definition + "_coords_" + bird + "_No" + str(index)]
         quads.append((coords_uri, RDF.type, GML.Point, g1))
+        quads.append((row_uri, GEOSPARQL.hasCentroid, coords_uri, g1))
         instances[str(GML.Point)] = coords_uri
         # relate the geometry to its coordinates and CRS
         quads.append((coords_uri, GEOSPARQL.asWKT, Literal("POINT(" + str(row['x']) + " " + str(row['y']) + ")", 
@@ -206,7 +207,13 @@ def dataIngestionBasedOnOntology(endpoint :SPARQLEndpoint, filepath :filePath):
     storeDataToKnowledgeBase(endpoint, quads)    
 
 
-"""host = "18.184.236.71"
-endpoint = f"http://{host}:3030/ds/"
-filepath = 'G:/My Drive/Thesis/GrW_observation.csv'
-dataIngestionBasedOnOntology(endpoint, filepath)"""
+#host = "localhost"
+#endpoint = f"http://{host}:3030/ds/"
+#filepath = './Data/GrW_observation.csv'
+
+#import time
+#start = time.time()
+#dataIngestionBasedOnOntology(endpoint, filepath)
+#end = time.time()
+
+#print("Domain Data Ingestion: ", end - start)

@@ -4,7 +4,7 @@ import subprocess
 import queryAgents as qa
 
 
-host = '18.198.209.204'
+host = '3.122.236.101'
 endpoint = f"http://{host}:3030/ds/"
 
 
