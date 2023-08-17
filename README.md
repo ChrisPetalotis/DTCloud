@@ -1,4 +1,4 @@
-# A Knowledge Graph enhanced framework for automation and collaboration in Digital Twins
+# Towards a Knowledge Graph enhanced framework for automation and collaboration in Digital Twins
 
 ## Computational Science Master Thesis on Digital Twins and Cloud Computing
 
