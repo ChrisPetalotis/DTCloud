@@ -101,11 +101,11 @@ variable "log_retention_in_days" {
 # aws config
 
 variable "aws_access_key" {
-  default = "AKIASF7WZIHBGWAVP57T"
+  default = " "
 }
 
 variable "aws_secret_key" {
-  default = "Ei3Dq8/uYPiyO0V5d1KMyL6Wi/wGW5D3JyVSc24e"
+  default = " "
 }
 
 variable "region" {
