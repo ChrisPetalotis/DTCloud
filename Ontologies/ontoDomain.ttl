@@ -22,19 +22,142 @@
                                                                 rdfs:label "Domain Ontology" .
 
 #################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.w3.org/ns/ssn/hasProperty
+ssn:hasProperty rdfs:domain ontoGeo:ObservationRegion ;
+                rdfs:range ontoEco:VegetationMetric .
+
+
+#################################################################
 #    Classes
 #################################################################
 
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/ObservationRegion
-ontoEco:ObservationRegion rdfs:subClassOf [ rdf:type owl:Restriction ;
-                                            owl:onProperty geo:hasCentroid ;
+###  http://purl.obolibrary.org/obo/ENVO_01000739
+<http://purl.obolibrary.org/obo/ENVO_01000739> rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty <http://purl.obolibrary.org/obo/RO_0002131> ;
+                                                                 owl:someValuesFrom ontoGeo:ObservationRegion
+                                                               ] .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/BirdSpecies
+ontoEco:BirdSpecies rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                      owl:onProperty <http://purl.obolibrary.org/obo/RO_0002618> ;
+                                      owl:someValuesFrom ontoGeo:ObservationRegion
+                                    ] .
+
+
+###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoGeo/ObservationRegion
+ontoGeo:ObservationRegion rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
                                             owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                            owl:onClass gml:Point
+                                            owl:onClass <http://purl.obolibrary.org/obo/ENVO_00000054>
                                           ] ,
                                           [ rdf:type owl:Restriction ;
-                                            owl:onProperty geo:sfWithin ;
+                                            owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
                                             owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                            owl:onClass ontoGeo:MeasurementRegion
+                                            owl:onClass <http://purl.obolibrary.org/obo/ENVO_01000861>
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass <http://purl.obolibrary.org/obo/ENVO_01000869>
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass <http://purl.obolibrary.org/obo/ENVO_01000893>
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass <http://purl.obolibrary.org/obo/ENVO_01001208>
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:ReedArea
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:lidar_C_ppr
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:lidar_HH_reedveg_prop
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:lidar_HH_sd
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:lidar_HH_sd_low
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:lidar_VD_1_2
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:lidar_VD_2_3
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:lidar_VV_kurt
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:lidar_VV_p25
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:lidar_VV_std
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:optical_NDVImed
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:optical_NDVIsd_hor_100m
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:optical_NDVIstd
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:radar_VHsd_hor_100m
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:radar_VHstd
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:radar_VVmax
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty ssn:hasProperty ;
+                                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                            owl:onClass ontoEco:radar_VVstd
                                           ] .
 
 

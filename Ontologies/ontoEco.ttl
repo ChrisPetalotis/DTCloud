@@ -100,7 +100,6 @@
 ###  http://purl.obolibrary.org/obo/RO_0002618
 <http://purl.obolibrary.org/obo/RO_0002618> rdf:type owl:ObjectProperty ;
                                             rdfs:domain ncit:C45293 ;
-                                            rdfs:range :ObservationRegion ;
                                             rdfs:label "visits" .
 
 
@@ -210,10 +209,6 @@ sio:SIO_000300 rdf:type owl:DatatypeProperty ;
 ###  http://purl.obolibrary.org/obo/ENVO_01000739
 <http://purl.obolibrary.org/obo/ENVO_01000739> rdf:type owl:Class ;
                                                rdfs:subClassOf <http://purl.obolibrary.org/obo/ENVO_01001110> ,
-                                                               [ rdf:type owl:Restriction ;
-                                                                 owl:onProperty <http://purl.obolibrary.org/obo/RO_0002131> ;
-                                                                 owl:someValuesFrom :ObservationRegion
-                                                               ] ,
                                                                [ rdf:type owl:Restriction ;
                                                                  owl:onProperty :habitatProbability ;
                                                                  owl:someValuesFrom xsd:float
@@ -402,10 +397,6 @@ geo:Feature rdf:type owl:Class ;
                              [ rdf:type owl:Restriction ;
                                owl:onProperty <http://purl.obolibrary.org/obo/RO_0002303> ;
                                owl:someValuesFrom <http://purl.obolibrary.org/obo/ENVO_01000739>
-                             ] ,
-                             [ rdf:type owl:Restriction ;
-                               owl:onProperty <http://purl.obolibrary.org/obo/RO_0002618> ;
-                               owl:someValuesFrom :ObservationRegion
                              ] ;
              rdfs:label "Bird Species" .
 
@@ -441,122 +432,6 @@ geo:Feature rdf:type owl:Class ;
 :LidarGeneratedMetric rdf:type owl:Class ;
                       rdfs:subClassOf :VegetationMetric ;
                       rdfs:label "Lidar Generated Metric" .
-
-
-###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/ObservationRegion
-:ObservationRegion rdf:type owl:Class ;
-                   rdfs:subClassOf geo:Feature ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass <http://purl.obolibrary.org/obo/ENVO_00000054>
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass <http://purl.obolibrary.org/obo/ENVO_01000861>
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass <http://purl.obolibrary.org/obo/ENVO_01000869>
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass <http://purl.obolibrary.org/obo/ENVO_01000893>
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass <http://purl.obolibrary.org/obo/ENVO_01001208>
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty <http://purl.obolibrary.org/obo/BFO_0000051> ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :ReedArea
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :lidar_C_ppr
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :lidar_HH_reedveg_prop
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :lidar_HH_sd
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :lidar_HH_sd_low
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :lidar_VD_1_2
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :lidar_VD_2_3
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :lidar_VV_kurt
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :lidar_VV_p25
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :lidar_VV_std
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :optical_NDVImed
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :optical_NDVIsd_hor_100m
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :optical_NDVIstd
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :radar_VHsd_hor_100m
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :radar_VHstd
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :radar_VVmax
-                                   ] ,
-                                   [ rdf:type owl:Restriction ;
-                                     owl:onProperty ssn:hasProperty ;
-                                     owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                     owl:onClass :radar_VVstd
-                                   ] ;
-                   rdfs:label "Observation Region" .
 
 
 ###  http://www.semanticweb.org/VasileiosDT/ontologies/ontoEco/ReedArea
