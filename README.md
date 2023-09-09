@@ -18,9 +18,9 @@ The 'Ontologies' folder includes the developed ontologies in turtle format.
 
 The 'Data' folder includes data for the wetlands ecosystem use case, such as vegetation metrics and bird observations (https://zenodo.org/record/6497349#.Y8AmYxXMKUn , https://zenodo.org/record/5772673#.Y8AmMBXMKUl).
 
-After the containers are running, the data ingestion python scripts can be run to ingest data to Fuseki in the following order: domainDataIngestion.py, serviceDataIngestion.py, containerDataIngestion.py, infraDataIngestion.py (or just fullDataIngestion.py). Currently, localhost is used for the Fuseki endpoint. If Fuseki is deployed on AWS, the public IP of the EC2 instance that hosts Fuseki must replace localhost in the data ingestion scripts.
-
 The files mappingAgents.py and queryAgents.py include custom algorithms that are imported and used by the rest of the project.
+
+After the containers are running, the ontologies need to be uploaded to fuseki. The process has been automated in the case of deploying to AWS, using a Lambda function. However, in case of local deployment, the ontologyDataIngestion.py script needs to be adapted and run, or the ontologies can be manually uploaded using the fuseki UI. Then, the data ingestion python scripts can be run to ingest data to Fuseki in the following order: domainDataIngestion.py, serviceDataIngestion.py, containerDataIngestion.py, infraDataIngestion.py (or just fullDataIngestion.py). Currently, localhost is used for the Fuseki endpoint. If Fuseki is deployed on AWS, the public IP of the EC2 instance that hosts Fuseki must replace localhost in the data ingestion scripts. 
 
 dockerizeDT.py can be used to automate the process of generating the Dockerfiles and the docker-compose.yml for the DT services, after container data have been ingested in the Knowledge Base.
 
