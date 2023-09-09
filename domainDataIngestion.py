@@ -86,7 +86,7 @@ def transformToRDF(endpoint :SPARQLEndpoint, filepath :filePath, df : pd.DataFra
     g = ds.graph(URIRef("http://www.myapp.org/ecosystem"))
     g1 = ds.graph(URIRef("http://www.myapp.org/map"))
     # parse the ahn3 graph
-    g1.parse("G:/My Drive/Thesis/Output/gml_no_Bnodes_as.ttl", format="turtle")
+    g1.parse("./Data/gml_no_Bnodes_as.ttl", format="turtle")
 
     quads = []
     # get the bird species and the class that the df rows correspond to
@@ -207,13 +207,13 @@ def dataIngestionBasedOnOntology(endpoint :SPARQLEndpoint, filepath :filePath):
     storeDataToKnowledgeBase(endpoint, quads)    
 
 
-#host = "localhost"
-#endpoint = f"http://{host}:3030/ds/"
-#filepath = './Data/GrW_observation.csv'
+host = "localhost"
+endpoint = f"http://{host}:3030/ds/"
+filepath = './Data/GrW_observation.csv'
 
 #import time
 #start = time.time()
-#dataIngestionBasedOnOntology(endpoint, filepath)
+dataIngestionBasedOnOntology(endpoint, filepath)
 #end = time.time()
 
 #print("Domain Data Ingestion: ", end - start)

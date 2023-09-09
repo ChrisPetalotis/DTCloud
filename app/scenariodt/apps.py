@@ -41,6 +41,7 @@ class ScenariodtConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'scenariodt'
 
-    '''def ready(self):
+    #def ready(self):
         # Call the warm-up function during application startup
-        warm_up_fuseki_connection()'''
+        #warm_up_fuseki_connection()
+        

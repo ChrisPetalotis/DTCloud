@@ -60,6 +60,7 @@ endpoint_query = endpoint + "sparql"
 SDM_endpoint = os.getenv('SDM_ENDPOINT', 'http://sdm:80/')
 vis_endpoint = os.getenv('VIS_ENDPOINT', 'http://visualization:80/')
 
+
 def getScenarios(endpoint, filters :list = [], filterType :str = 'property'):
     from rdflib import Dataset
     ds = Dataset('SPARQLUpdateStore')
@@ -1132,7 +1133,7 @@ def deleteScenario(request):
             ds.remove_graph(ds.get_context(URIRef(scenario)))
             graph = ds.get_context(MYAPP.scenario)
             for s, p, o in graph.triples((None, None, None)):
-                if scenario.split('/')[-1] in str(s):
+                if scenario.split('/')[-1] in str(s) or scenario.split('/')[-1] in str(o):
                     graph.remove((s, p, o))
             messages.add_message(request, messages.INFO, "Scenario deleted successfully!")
             return redirect('main')

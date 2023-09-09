@@ -16,23 +16,23 @@ host = "localhost"
 endpoint = f"http://{host}:3030/ds/"
 filepath = './Data/GrW_observation.csv'
 
-domainStart = time.time()
+#domainStart = time.time()
 domain.dataIngestionBasedOnOntology(endpoint, filepath)
-domainEnd = time.time()
+#domainEnd = time.time()
 service.ingestServices(endpoint)
-serviceEnd = time.time()
+#serviceEnd = time.time()
 container.ingestContainers(endpoint)
-containerEnd = time.time()
+#containerEnd = time.time()
 infra.ingestInfra(endpoint, 'db')
 infra.ingestInfra(endpoint, 'scenariodt_infra')
-infraEnd = time.time()
+#infraEnd = time.time()
 
-print('Domain Data Ingestion: ', domainEnd - domainStart)
-print('Service Data Ingestion: ', serviceEnd - domainEnd)
-print('Container Data Ingestion: ', containerEnd - serviceEnd)
-print('Infra Data Ingestion: ', infraEnd - containerEnd)
-print('-----------------------------------')
-print('Full Data Ingestion: ', infraEnd - domainStart)
+#print('Domain Data Ingestion: ', domainEnd - domainStart)
+#print('Service Data Ingestion: ', serviceEnd - domainEnd)
+#print('Container Data Ingestion: ', containerEnd - serviceEnd)
+#print('Infra Data Ingestion: ', infraEnd - containerEnd)
+#print('-----------------------------------')
+#print('Full Data Ingestion: ', infraEnd - domainStart)
 
 
 
