@@ -1,4 +1,4 @@
-version: ‘3’
+version: "3"
 
 services:
   db:
@@ -13,6 +13,10 @@ services:
       - 3306
     ports:
       - 3306:3306
+
+  redis:
+    image: redis:7.2.1-alpine
+
   sdm:
     container_name: sdm
     image: vasilis421/r-sdm-api:latest
@@ -35,12 +39,12 @@ services:
     environment:
       - ADMIN_PASSWORD=pw123
       - ENABLE_DATA_WRITE=true
-      - ENABLE_UPDATE=true 
-      - ENABLE_UPLOAD=true 
+      - ENABLE_UPDATE=true
+      - ENABLE_UPLOAD=true
       - QUERY_TIMEOUT=60000
     volumes:
-      - C:\Users\venge\Documents\CLS\Thesis\Project\DTCloudThesis\fuseki-data:/fuseki-base/databases
-      - C:\Users\venge\Documents\CLS\Thesis\Project\DTCloudThesis\fuseki-configuration:/fuseki-base/configuration
+      - /Users/christospetalotis/Development/DTCloud/fuseki-data:/fuseki-base/databases
+      - /Users/christospetalotis/Development/DTCloud/fuseki-configuration:/fuseki-base/configuration
     expose:
       - 3030
     ports:
@@ -48,7 +52,11 @@ services:
 
   scenario_dt:
     container_name: scenario_dt
-    image: vasilis421/scenario_dt:latest
+    # image: vasilis421/scenario_dt:latest
+    #? Temp for local dev
+    build:
+      context: ./app
+    #? ===
     env_file:
       - .env
     environment:
@@ -72,6 +80,21 @@ services:
       - 8000:8000
     depends_on:
       - db
+      - redis
+      - fuseki
+
+  celery:
+    #? Temp for local dev
+    container_name: celery
+    build:
+      context: ./app
+    #? ===
+    command: celery --app=scenariodt worker -l INFO # Start Celery worker
+    # volumes:
+    #   - static_volume:/home/app/web/scenariodt/public/static/
+    depends_on:
+      - db
+      - redis
       - fuseki
 
   nginx:

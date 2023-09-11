@@ -1,5 +1,10 @@
 FROM python:3.8.3-slim-buster
 
+# prevent Python from writing •pyc files
+ENV PYTHONDONTWRITEBYTECODE 1
+# ensure Python output is sent directly to 1
+ENV PYTHONUNBUFFERED 1
+
 # Install system dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \

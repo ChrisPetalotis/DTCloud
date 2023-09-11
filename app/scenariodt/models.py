@@ -1,3 +1,3 @@
 from django.db import models
-from django.contrib.auth.models import User
+from rdflib import Graph, URIRef, Namespace
 

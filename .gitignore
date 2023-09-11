@@ -130,3 +130,7 @@ dmypy.json
 
 app/static/
 app/public/static/
+
+fuseki-data/
+
+.DS_Store

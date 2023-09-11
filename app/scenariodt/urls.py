@@ -18,8 +18,12 @@ from django.contrib import admin
 from django.conf.urls import include, url
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
+
 from . import views
 from .views import knowledgeGraph
+
 
 urlpatterns = [
     path('', views.main, name='main'),
@@ -39,3 +43,10 @@ urlpatterns = [
     path('knowledge_graph/', knowledgeGraph, name='knowledge_graph'),
     url('^django_plotly_dash/', include('django_plotly_dash.urls')),
 ]
+
+# In development envrionment - this adds a static directory to the project
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
+# reference: https://docs.djangoproject.com/en/4.2/howto/static-files/#serving-static-files-in-development

@@ -35,19 +35,19 @@ SITE_ID=1
 
 INSTALLED_APPS = [
     'django.contrib.admin',
-    'django.contrib.contenttypes',
     'django.contrib.auth',
-    'scenariodt.apps.ScenariodtConfig',
-    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django.contrib.gis',
-    'storages',
-    'django_tables2',
+    'scenariodt',
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'crispy_forms',
     'crispy_bootstrap4',
+    'storages',
+    'django_tables2',
     'leaflet',
     'djgeojson',
 ]
@@ -153,25 +153,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "scenariodt/static")]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "scenariodt", "static")]
+# print("STATICFILES_DIRS", STATICFILES_DIRS)
+# S3 = os.getenv('S3') == 'True'
 
-S3 = os.getenv('S3') == 'True'
-
-if S3:
-    AWS_S3_REGION_NAME = 'eu-central-1'
-    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = 'scenario-dt-bucket'
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-    # s3 static settings
-    AWS_LOCATION = 'static'
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
-    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-else:
-    STATIC_URL = '/static/'
-    STATIC_ROOT = BASE_DIR / "scenariodt/public/static"
+# if S3:
+#     AWS_S3_REGION_NAME = 'eu-central-1'
+#     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+#     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+#     AWS_STORAGE_BUCKET_NAME = 'scenario-dt-bucket'
+#     AWS_DEFAULT_ACL = 'public-read'
+#     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+#     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+#     # s3 static settings
+#     AWS_LOCATION = 'static'
+#     STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+#     STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# else:
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "scenariodt/public/static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -180,3 +180,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 fuseki = os.getenv('SPARQL_ENDPOINT')
 CSRF_TRUSTED_ORIGINS = ['https://*.aws.com','http://127.0.0.1', 'http://localhost', 'http://localhost:8000', f'http://{fuseki}']
+# CELERY SETTINGS
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER', "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.getenv('CELERY_BACKEND', "redis://redis:6379/0")

@@ -1,9 +1,18 @@
+import ssl
+
 from rdflib.plugins.sparql.processor import SPARQLResult
 from typing import TypeVar
 
 SPARQLEndpoint = TypeVar('SPARQLEndpoint', str, str)
 filePath = TypeVar('filePath', str, str)
 
+# Disable SSL to allow nltk download
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
 
 def getClassRelatedWords(text :str) -> list:
     import nltk

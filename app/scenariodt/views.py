@@ -21,6 +21,9 @@ import dash_cytoscape as cyto
 from dash import html, dcc
 from dash.dependencies import Input, Output
 from django_plotly_dash import DjangoDash
+from rdflib.serializer import Serializer
+
+from .tasks import handle_scenario_execution
 
 # Ontologies namespaces
 GML = Namespace("http://www.opengis.net/gml/3.2/")
@@ -59,7 +62,6 @@ endpoint_query = endpoint + "sparql"
 # R APIs endpoints
 SDM_endpoint = os.getenv('SDM_ENDPOINT', 'http://sdm:80/')
 vis_endpoint = os.getenv('VIS_ENDPOINT', 'http://visualization:80/')
-
 
 def getScenarios(endpoint, filters :list = [], filterType :str = 'property'):
     from rdflib import Dataset
@@ -454,21 +456,28 @@ def executeScenario(request):
             current_dateTime = str(datetime.now())
             scenario_name = request.POST['scenario']
             # create named graph for the scenario to save the updated values
-            createScenarioView(ds, scenario_name, request.user)
-            # retrieve scenario RDF data and transform to pandas dataframe
-            df = RDFtoDataFrame(ds, scenario_name)
-            # send data to SDM API and get predictions
-            predictions = getSDMResults(df, SDM_endpoint)
-            # transform predictions to RDF and save to scenario named graph
-            addResultsToGraph(ds, scenario_name, predictions)
-            messages.add_message(request, messages.INFO, "Results were saved to scenario view.")
+            # createScenarioView(ds, scenario_name, request.user) #! SELERY START
+            # # retrieve scenario RDF data and transform to pandas dataframe
+            # df = RDFtoDataFrame(ds, scenario_name)
+            # # send data to SDM API and get predictions
+            # predictions = getSDMResults(df, SDM_endpoint)
+            # # transform predictions to RDF and save to scenario named graph
+            # addResultsToGraph(ds, scenario_name, predictions)
+            # messages.add_message(request, messages.INFO, "Results were saved to scenario view.") #! SELERY END
+            
+            # Add task to Celery queue
+            # handle_scenario_execution.delay(ds, scenario_name, request)
+            
+            handle_scenario_execution.delay(scenario_name, request.user.id)
+
+            #? THESE ARE NEEDED
             # retrieve scenario results, transform to pandas dataframe
-            results_df = retrieveScenarioResults(ds, scenario_name)
-            # send results to visualization API and get serialized map image
-            img_url = getResultsVisualization(results_df, vis_endpoint)
-            # dict for base scenario and alternative scenario images
-            img_urls = {static('img/baseScenario.png'): 'Base Scenario'}
-            img_urls[img_url] = scenario_name
+            # results_df = retrieveScenarioResults(ds, scenario_name)
+            # # send results to visualization API and get serialized map image
+            # img_url = getResultsVisualization(results_df, vis_endpoint)
+            # # dict for base scenario and alternative scenario images
+            # img_urls = {static('img/baseScenario.png'): 'Base Scenario'}
+            # img_urls[img_url] = scenario_name
 
             # Add scenario execution provenance data to graph
             scenario_graph = ds.graph(URIRef("http://www.myapp.org/scenario"))
@@ -477,6 +486,8 @@ def executeScenario(request):
             quads.append((MYAPP[scenario_name + '_scenario_execution'], PROV.startedAtTime, Literal(current_dateTime, datatype=XSD.datetime), scenario_graph))
             quads.append((MYAPP[scenario_name + '_scenario'], ontoScenario.wasExecutedBy, MYAPP[scenario_name + '_scenario_execution'], scenario_graph))
             ds.addN(quads)
+            return redirect('main')
+
             # visualize base and alternative scenarios
             return render(request, "plot.html", {'scenario_img_urls': img_urls})
     else:
@@ -499,7 +510,7 @@ def getResultsVisualization(df, API_url):
     data_url = f"data:image/png;base64,{base64.b64encode(response.content).decode()}"
     return data_url
 
-def createScenarioView(ds, scenario_name, user):
+def createScenarioView(ds, scenario_name, user_id):
     """Function that accepts the region of interest geomerty in the form of long-lat pairs
     of the polygon, finds all the points within the region and their new values to the graph"""
     scenario_graph = ds.graph(URIRef("http://www.myapp.org/" + str(scenario_name)))
@@ -559,12 +570,12 @@ def createScenarioView(ds, scenario_name, user):
                 GRAPH myapp:scenario {{
                   ?scenario rdfs:label "{scenario}"^^xsd:string ;
                     ontoScenario:hasScenarioParameter ?param ;
-                    prov:wasAttributedTo myapp:user_{user} .
+                    prov:wasAttributedTo myapp:user_id_{user} .
                   ?param a ?metrictype .
                   ?effect ontoScenario:affects ?param ;
                     ontoScenario:hasImpactFactor ?f .
                 }}
-              }}""".format(scenario=scenario_name, user=user.id)
+              }}""".format(scenario=scenario_name, user=user_id)
     results = ds.query(sparql)
     quads = []
     for row in results:
@@ -1133,7 +1144,7 @@ def deleteScenario(request):
             ds.remove_graph(ds.get_context(URIRef(scenario)))
             graph = ds.get_context(MYAPP.scenario)
             for s, p, o in graph.triples((None, None, None)):
-                if scenario.split('/')[-1] in str(s) or scenario.split('/')[-1] in str(o):
+                if scenario.split('/')[-1] in str(s):
                     graph.remove((s, p, o))
             messages.add_message(request, messages.INFO, "Scenario deleted successfully!")
             return redirect('main')
