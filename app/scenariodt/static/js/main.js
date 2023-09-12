@@ -23,7 +23,7 @@ const socket = new WebSocket(wsEndpoint)
 // Captures incoming messages via web socket connection
 socket.addEventListener("message", event => {
 	const messageData = JSON.parse(event.data)
-	console.log("Received notificaition:", messageData.message) // Log the received message
+	console.log("Received notification:", messageData.message) // Log the received message
 	showNotification(messageData.message)
 })
 

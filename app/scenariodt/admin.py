@@ -22,17 +22,17 @@ class NotificationAdmin(admin.ModelAdmin):
             if form.is_valid():
                 message = form.cleaned_data["message"]
 
-                channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.group_send)(
-                    "notifications",
-                    {
-                        "type": "send_notification",
-                        "message": message,
-                    },
-                )
-                notification = Notification.objects.create(
-                    message=message
-                )  # Save message to database
+                # channel_layer = get_channel_layer()
+                # async_to_sync(channel_layer.group_send)(
+                #     "notifications",
+                #     {
+                #         "type": "send_notification",
+                #         "message": message,
+                #     },
+                # )
+                # notification = Notification.objects.create(
+                #     message=message
+                # )  # Save message to database
 
                 return HttpResponseRedirect(f"../{notification.pk}")
         else:

@@ -10,9 +10,8 @@ app = Celery('scenariodt')
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
 # Whenever a new task is created in Celery, it needs to get registered that task to Celery
-
 # @app.task # Registers task with Celery
-# def create_scenario_view():
+# def new_task():
 #   return
 
 app.autodiscover_tasks() # Looks for tasks in the tasks.py file in the project and in all the installed apps
