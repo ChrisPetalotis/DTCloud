@@ -1152,3 +1152,6 @@ def deleteScenario(request):
         form = ScenarioSelectionForm(options)
 
     return render(request, 'delete_scenario.html', {'deleteform': form})
+
+def notification_page_view(request):
+    return render(request, 'notification_page.html')

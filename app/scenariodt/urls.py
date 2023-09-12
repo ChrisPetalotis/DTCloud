@@ -42,6 +42,7 @@ urlpatterns = [
     path('execute_scenario/', views.executeScenario, name='execute_scenario'),
     path('knowledge_graph/', knowledgeGraph, name='knowledge_graph'),
     url('^django_plotly_dash/', include('django_plotly_dash.urls')),
+    path('notifications', views.notification_page_view, name='notifications'),
 ]
 
 # In development envrionment - this adds a static directory to the project

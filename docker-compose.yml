@@ -71,7 +71,7 @@ services:
       - SPARQL_ENDPOINT=http://fuseki:3030/
       - SDM_ENDPOINT=http://sdm:80/
       - VIS_ENDPOINT=http://visualization:80/
-    command: sh -c "python manage.py makemigrations && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn scenariodt.wsgi:application --timeout 120 --bind 0.0.0.0:8000"
+    command: sh -c "python manage.py makemigrations && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn scenariodt.asgi:application -k uvicorn.workers.UvicornWorker --reload --timeout 120 --bind 0.0.0.0:8000"
     volumes:
       - static_volume:/home/app/web/scenariodt/public/static/
     expose:

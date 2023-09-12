@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django_tables2',
     'leaflet',
     'djgeojson',
+    'channels'
 ]
 
 X_FRAME_OPTIONS = 'ALLOWALL'
@@ -173,6 +174,10 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "scenariodt", "static")]
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "scenariodt/public/static/"
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / "scenariodt/public/media/"
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -183,3 +188,15 @@ CSRF_TRUSTED_ORIGINS = ['https://*.aws.com','http://127.0.0.1', 'http://localhos
 # CELERY SETTINGS
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER', "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = os.getenv('CELERY_BACKEND', "redis://redis:6379/0")
+
+# Channel layers allow us to talk to different instances (i.e. connected user) of the application
+# by storing identification information for each user in channel layers
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            
+            'hosts': [('redis', 6379)],
+        },
+    }
+}
