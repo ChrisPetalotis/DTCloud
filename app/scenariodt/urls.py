@@ -23,7 +23,7 @@ from django.conf.urls.static import static
 
 from . import views
 from .views import knowledgeGraph
-
+from .consumers import NotificationConsumer
 
 urlpatterns = [
     path('', views.main, name='main'),
@@ -51,3 +51,7 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     
 # reference: https://docs.djangoproject.com/en/4.2/howto/static-files/#serving-static-files-in-development
+
+websocket_urlpatterns = [
+    path('ws/notifications/', NotificationConsumer.as_asgi()),
+]
